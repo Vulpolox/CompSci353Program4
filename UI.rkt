@@ -2,7 +2,9 @@
 
 (require "Format.rkt") ; provides "pad-string" function for string formatting
 
-; --- menu stuff -----------------------------------------------------------------------------------------
+(provide make-choice)
+
+; --- MENU STUFF -----------------------------------------------------------------------------------------
 
 (define example-menu 
   (list "Menu Name"
@@ -49,11 +51,15 @@
          (make-choice menu-object))]
       )))
 
-; --- dialogue stuff ----------------------------------------------------------------------------------
+; --- DIALOGUE STUFF ----------------------------------------------------------------------------------
 
-
+(define (show-dialogue dialogue)
+  (displayln dialogue)
+  (display "---\nENTER ANY VALUE TO CONTINUE\n   >>>")
+  (define pause (read-line))
+  (displayln "---"))
   
-; --- helper functions --------------------------------------------------------------------------------
+; --- HELPER FUNCTIONS --------------------------------------------------------------------------------
             
 ; pre  -- takes a list of lists and an integer index; all sublists must have at least index+1 elements
 ; post -- returns a list containing all elements of the sublists at the specified index
@@ -68,5 +74,3 @@
      (let ([element-to-add (list-ref (first lst) index)])
 
        (_get-at-index (cdr lst) index (cons element-to-add output)))]))
-
-(make-choice example-menu)
