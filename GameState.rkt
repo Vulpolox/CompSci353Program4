@@ -65,7 +65,6 @@
 
 ; --- MENU-LIST FUNCTIONS -------------------------------------------------
 
-
 ; pre  -- takes a menu-name and a game-state object
 ; post -- returns the menu-object corresponding to the specified menu-name
 ;         within the game-state's menu-list
@@ -76,7 +75,7 @@
   (first target))                                                        ; return the desired menu
 
 ; pre  -- takes a menu-name, a message, a choice, a function, and a game-state object
-; post -- returns a new game-state object with the specified message, choice, and function appended to the menu items section of the menu specified
+; post -- returns a new game-state object with the specified message, choice, and function appended to the menu-items section of the menu-object specified
 ;         by menu-name within the new game-state's menu-list (quite a mouthfull, I know)
 (define (add-menu-item menu-name message choice func game-state)
   (define menu-item-to-add (list message choice func))                                                                            ; the menu item to add
@@ -92,21 +91,21 @@
 ; post -- returns a new game-state object with the menu-item removed
 ;         from the menu-object specified by the passed menu-name and choice-to-remove parameters in the new game-state object's menu-list 
 (define (remove-menu-item menu-name choice-to-remove game-state)
-  (define target-menu (find-menu menu-name game-state))
-  (define updated-target-menu (filter [lambda (menu-item) (not (equal? (second menu-item) choice-to-remove))]
+  (define target-menu (find-menu menu-name game-state))                                                                                ; the menu-object from which the menu-item will be removed
+  (define updated-target-menu (filter [lambda (menu-item) (not (equal? (second menu-item) choice-to-remove))]                          ; the updated menu-object without the menu-item (but missing the name)
                                       [cdr target-menu]))
-  (define fixed-updated-menu (append (list menu-name) updated-target-menu))
-  (define old-menu-list (get-menu-list game-state))                                                                               
-  (define old-menu-list-no-outdated-entry (filter [lambda (menu-object) (not (equal? (first menu-object) (first fixed-updated-menu)))]
+  (define fixed-updated-menu (append (list menu-name) updated-target-menu))                                                            ; the updated menu-object with the name re-attached
+  (define old-menu-list (get-menu-list game-state))                                                                                    ; the menu-list from the input game-state object
+  (define old-menu-list-no-outdated-entry (filter [lambda (menu-object) (not (equal? (first menu-object) (first fixed-updated-menu)))] ; the menu-list without the menu-object that will be replaced
                                                   old-menu-list))
-  (define updated-menu-list (append (list fixed-updated-menu) old-menu-list-no-outdated-entry))
-  (set-menu-list updated-menu-list game-state))
+  (define updated-menu-list (append (list fixed-updated-menu) old-menu-list-no-outdated-entry))                                        ; the menu object with the updated menu-object
+  (set-menu-list updated-menu-list game-state))                                                                                        ; return a game-state object with the updated menu-list
 
 
 ; --- INVENTORY-LIST FUNCTIONS --------------------------------------------
 
 ; pre  -- takes a game-state object
-; post -- 
+; post -- displays all items whose in-inventory? flag is set to #t
 (define (display-inventory game-state)
   (define inventory-list (get-inventory-list game-state))
   (define owned-items (filter [lambda (item) (equal? (second item) #t)]
@@ -115,6 +114,12 @@
   (for-each [lambda (item) (printf "   ~a x1~n" (pad-string (first item) #\. 30 "right"))]
             owned-items)
   (display "\n"))
+
+
+(define (pick-up-item item-name game-state)
+  (define inventory-list (get-inventory-list game-state))
+  "Todo")
+  
 
 ; --- COIN FUNCTIONS -----------------------------------------------------
 
