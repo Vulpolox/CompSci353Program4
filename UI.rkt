@@ -3,6 +3,7 @@
 (require "Format.rkt") ; provides "pad-string" function for string formatting
 
 (provide make-choice)
+(provide show-dialogue)
 
 ; --- MENU STUFF -----------------------------------------------------------------------------------------
 
@@ -19,7 +20,7 @@
   (displayln "PICK ONE OF THE FOLLOWING:")
   (for-each [lambda (menu-item)
                     (printf "   ~a -- ~a~n" (pad-string (second menu-item) #\space 1 "left")
-                                            (pad-string (first menu-item) #\space 30 "right"))
+                                            (pad-string (first menu-item) #\space 70 "right"))
             ]
             (cdr menu-object)))
 

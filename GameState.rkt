@@ -3,6 +3,8 @@
 (require "UI.rkt")
 (require "Format.rkt")
 
+(provide (all-defined-out))
+
 ; NOTES:
 ;   format of menus           : '(menu-name '(message-1 choice-1 function-1) ... '(message-n choice-n function-n))
 ;   format of items           : '(item-name collected? in-inventory? used?)
@@ -28,7 +30,7 @@
 (define example-game-state (list "M1"
                                  [list menu1 menu2]
                                  [list example-item example-item2]
-                                 0 1))
+                                 50 1))
 
 ; --- GAME LOOP ------------------------------------------------------------
 
@@ -77,7 +79,7 @@
 ; pre  -- takes a menu-name, a message, a choice, a function, and a game-state object
 ; post -- returns a new game-state object with the specified message, choice, and function appended to the menu-items section of the menu-object specified
 ;         by menu-name within the new game-state's menu-list (quite a mouthfull, I know)
-(define (add-menu-item menu-name message choice func game-state)
+(define (add-menu-item game-state menu-name message choice func)
   (define menu-item-to-add (list message choice func))                                                                            ; the menu item to add
   (define menu-to-update (find-menu menu-name game-state))                                                                        ; the menu to which the new menu item will be added
   (define updated-menu (append menu-to-update (list menu-item-to-add)))                                                           ; the menu with menu-item-to-add added to it
@@ -113,16 +115,95 @@
   (displayln "ITEMS IN INVENTORY:")
   (for-each [lambda (item) (printf "   ~a x1~n" (pad-string (first item) #\. 30 "right"))]
             owned-items)
-  (display "\n"))
+  (show-dialogue ""))
 
 
+; pre  -- takes an item-name and a game-state object
+; post -- returns an updated game-state object with updated collected? and in-inventory? flags for the passed item and displays
+;         a message to the console
 (define (pick-up-item item-name game-state)
   (define inventory-list (get-inventory-list game-state))
-  "Todo")
+  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
+                                     inventory-list)))
+  (define collected? (second target-item))
+  (define used? (fourth target-item))
+
+  (cond
+    
+    [collected?
+     (show-dialogue "Item has already been collected")
+     game-state]
+    
+    [used?
+     (show-dialogue "Item has already been used")
+     game-state]
+    
+    [else
+     (let ([updated-item (list item-name #t #t #f)])
+       (show-dialogue (format "Picked up \"~a\"~n" item-name))
+       (_update-item updated-item game-state))]
+    ))
+
+; pre  -- takes an item-name and a game-state object
+; post -- returns an updated game-state object with updated in-inventory? and used? flags and displays a message to the console
+(define (use-item item-name game-state)
+  (define inventory-list (get-inventory-list game-state))
+  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
+                                     inventory-list)))
+  (define in-inventory? (third target-item))
+  (define used? (fourth target-item))
+
+  (cond
+
+    [used?
+     (show-dialogue "Item has already been used")
+     game-state]
+
+    [(not in-inventory?)
+     (show-dialogue "Item is not in inventory")
+     game-state]
+
+    [else
+     (let ([updated-item (list item-name #t #f #t)])
+       (show-dialogue (format "Used \"~a\"~n" item-name))
+       (_update-item updated-item game-state))]
+    ))
+     
+     
+
+; pre  -- takes an updated-item and a game-state object
+; post -- returns a new game-state object with its inventory-list updated to contain the new parameters of the updated-item
+;         
+(define (_update-item updated-item game-state)
+  (define inventory-list (get-inventory-list game-state))
+  (define inv-list-no-item (filter [lambda (item) (not (equal? (first item) (first updated-item)))]                            
+                                   inventory-list))
+  (define updated-inv-list (append (list updated-item) inv-list-no-item))
+  (set-inventory-list updated-inv-list game-state))
   
 
 ; --- COIN FUNCTIONS -----------------------------------------------------
 
 
-;(display-inventory example-game-state)
-;(game-loop example-game-state)
+; pre  -- takes a game-state object
+; post -- increments the coin-count field of the game-object by click-amount and returns the updated game-state object
+(define (click game-state)
+  (define new-coin-count (+ (get-coin-count game-state) (get-click-amount game-state)))
+  (define new-state (set-coin-count new-coin-count game-state))
+  (begin
+    (show-dialogue (format "+ ~a coin(s); you now have ~a coin(s)" (get-click-amount new-state) (get-coin-count new-state)))
+    new-state))
+    
+
+
+; pre  -- takes a game-state object and an integer
+; post -- increments the click-amount field of the game-state by the passed integer and returns the updated game-state object
+(define (increment-click-amount amount game-state)
+  (define new-click-amount (+ (get-click-amount game-state) amount))
+  (set-click-amount new-click-amount game-state))
+
+
+; pre  -- takes a game-state object
+; post -- displays how many coins the player has
+(define (print-money game-state)
+  (show-dialogue (format "You have ~a coin(s)" (get-coin-count game-state))))
