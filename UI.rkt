@@ -6,7 +6,7 @@
 (provide show-dialogue)
 
 ; --- MENU STUFF -----------------------------------------------------------------------------------------
-
+; 
 (define example-menu 
   (list "Menu Name"
         [list "Thing 1" "A" (lambda () "manipulate state")]
@@ -17,12 +17,15 @@
   (first menu-object))
 
 (define (display-menu menu-object)
+  (define sorted-menu-items (sort [cdr menu-object]
+                                  [lambda (current next) (< [char->integer (string-ref (second current) 0)] [char->integer (string-ref (second next) 0)])]
+                                  ))
   (displayln "PICK ONE OF THE FOLLOWING:")
   (for-each [lambda (menu-item)
                     (printf "   ~a -- ~a~n" (pad-string (second menu-item) #\space 1 "left")
                                             (pad-string (first menu-item) #\space 70 "right"))
             ]
-            (cdr menu-object)))
+            sorted-menu-items))
 
 (define (get-valid-choices menu-object)
   (_get-at-index (cdr menu-object) 1))
@@ -56,7 +59,7 @@
 
 (define (show-dialogue dialogue)
   (displayln dialogue)
-  (display "---\nENTER ANY VALUE TO CONTINUE\n   >>>")
+  (display "---\nPRESS ENTER TO CONTINUE >>>")
   (define pause (read-line))
   (displayln "---"))
   

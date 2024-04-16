@@ -114,8 +114,7 @@
                               inventory-list))
   (displayln "ITEMS IN INVENTORY:")
   (for-each [lambda (item) (printf "   ~a x1~n" (pad-string (first item) #\. 30 "right"))]
-            owned-items)
-  (show-dialogue ""))
+            owned-items))
 
 
 ; pre  -- takes an item-name and a game-state object
@@ -168,6 +167,15 @@
        (show-dialogue (format "Used \"~a\"~n" item-name))
        (_update-item updated-item game-state))]
     ))
+
+
+; pre  -- takes an item name and a game-state object
+; post -- returns true if the item is in the player's inventory; false otherwise
+(define (item-in-inventory? item-name game-state)
+  (define inventory-list (get-inventory-list game-state))
+  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
+                                     inventory-list)))
+  (third target-item))
      
      
 
@@ -193,6 +201,13 @@
   (begin
     (show-dialogue (format "+ ~a coin(s); you now have ~a coin(s)" (get-click-amount new-state) (get-coin-count new-state)))
     new-state))
+
+; pre  -- takes an integer representing the amount of coins to deduct and a game-state object
+; post -- deducts the specified amount of coins from the game-state object and returns it
+(define (deduct-coins coin-amount game-state)
+  (define starting-amount (get-coin-count game-state))
+  (define final-amount (- starting-amount coin-amount))
+  (set-coin-count final-amount game-state))
     
 
 
