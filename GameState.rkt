@@ -110,7 +110,7 @@
 ; post -- displays all items whose in-inventory? flag is set to #t
 (define (display-inventory game-state)
   (define inventory-list (get-inventory-list game-state))
-  (define owned-items (filter [lambda (item) (equal? (second item) #t)]
+  (define owned-items (filter [lambda (item) (equal? (third item) #t)]
                               inventory-list))
   (displayln "ITEMS IN INVENTORY:")
   (for-each [lambda (item) (printf "   ~a x1~n" (pad-string (first item) #\. 30 "right"))]
@@ -164,7 +164,6 @@
 
     [else
      (let ([updated-item (list item-name #t #f #t)])
-       (show-dialogue (format "Used \"~a\"~n" item-name))
        (_update-item updated-item game-state))]
     ))
 

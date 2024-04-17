@@ -140,21 +140,73 @@
                                                })]
         ))
 
+; --- UPGRADE MENU ----------------------------------------------------------------------------------
+
+(define upgrade-menu
+  (list "upgrade-menu"
+        [list "Exit upgrade menu" "X" (lambda (game-state)
+                                        {begin
+                                          [define state-1 (set-current-menu "main-menu" game-state)]
+                                          [game-loop state-1]
+                                          })]
+        ))
+
 ; --- NORTH PATH MENU -------------------------------------------------------------------------------
+
 (define north-path
   (list "north-path"
         [list "Check your surroundings" "S" (lambda (game-state)
                                               {begin
                                                 [show-dialogue "The chamber this passage has led you to is small and cramped.  To your left you are surpised to see a vending machine. Maybe you can get some food before you starve.\nTo your right there is a locked passage"]
-                                                [define state-1 (add-menu-item game-state "north-path" "Use vending machine (7 coins)" "A" (lambda (game-state) "todo"))]
+                                                [define state-1 (add-menu-item game-state "north-path" "Use vending machine (7 coins)" "A" (lambda (game-state)
+                                                                                                                                             {begin
+                                                                                                                                               (cond
+                                                                                                                                                 [(< (get-coin-count game-state) 7)
+                                                                                                                                                  [show-dialogue "You don't have enough coins to use the vending machine.\nMaybe you should go back to the main area to generate some more"]
+                                                                                                                                                  [game-loop game-state]]
+
+                                                                                                                                                 [else
+                                                                                                                                                  (let* ([state-1 (remove-menu-item "north-path" "A" game-state)]
+                                                                                                                                                         [state-2 (deduct-coins 7 state-1)])
+                                                                                                                                                    [show-dialogue "Your stomach growls as you insert your coins into the vending machine."]
+                                                                                                                                                    [show-dialogue "After a few seconds of anticipation, your item drops to the vending machine receptacle.  You eagarly pick it up\nonly to realize it is just a dumb key.  You quietly curse to yourself"]
+                                                                                                                                                    [game-loop (pick-up-item "KEY " state-2)])
+                                                                                                                                                  ]
+                                                                                                                                                 )}))]
                                                 [define state-2 (add-menu-item state-1 "north-path" "Unlock passage (1 key)" "B" (lambda (game-state)
                                                                                                                                    {begin
                                                                                                                                      (cond
                                                                                                                                        [(item-in-inventory? "KEY " game-state)
                                                                                                                                         (let* ([state-1 (use-item "KEY " game-state)]
                                                                                                                                                [state-2 (remove-menu-item "north-path" "B" state-1)]
-                                                                                                                                               [state-3 (add-menu-item state-2 "north-path" "Enter passage" "B" (lambda (game-state) "todo"))])
-                                                                                                                                          
+                                                                                                                                               [state-3 (add-menu-item state-2 "north-path" "Enter passage" "B" (lambda (game-state)
+                                                                                                                                                                                                                  {begin
+                                                                                                                                                                                                                    [show-dialogue "The passage leads you to a small room with a terminal at its center.\nA message on the terminal reads \"Play number game to win coin generator upgrade module.\"  You decide to give it a try"]
+                                                                                                                                                                                                                    [define win? (number-guessing-game 100)]
+                                                                                                                                                                                                                    (cond
+                                                                                                                                                                                                                      [win?
+                                                                                                                                                                                                                       (let* ([state-1 (pick-up-item "UPGRADE MODULE V1 " game-state)]
+                                                                                                                                                                                                                              [state-2 (remove-menu-item "north-path" "B" state-1)]
+                                                                                                                                                                                                                              [state-3 (add-menu-item state-2 "upgrade-menu" "Use UPGRADE MODULE V1" "A" (lambda (game-state)
+                                                                                                                                                                                                                                                                                                           {begin
+                                                                                                                                                                                                                                                                                                             [define state-1 (use-item "UPGRADE MODULE V1 " game-state)]
+                                                                                                                                                                                                                                                                                                             [define state-2 (remove-menu-item "upgrade-menu" "A" state-1)]
+                                                                                                                                                                                                                                                                                                             [define state-3 (set-click-amount 10 state-2)]
+                                                                                                                                                                                                                                                                                                             [show-dialogue "You insert the upgrade module into the coin generator"]
+                                                                                                                                                                                                                                                                                                             [show-dialogue "A screen lights up and displays a message: \"COIN AMOUNT SET TO 10\""]
+                                                                                                                                                                                                                                                                                                             [game-loop state-3]
+                                                                                                                                                                                                                                                                                                             }))]
+                                                                                                                                                                                                                              )
+                                                                                                                                                                                                                         [show-dialogue "The ground starts shaking around you"]
+                                                                                                                                                                                                                         [show-dialogue "You quickly jump out from the passage before it collapses behind you.  \"Well, that was close!\""]
+                                                                                                                                                                                                                         [show-dialogue "You should use the upgrade you just found on your coin generator"]
+                                                                                                                                                                                                                         [game-loop state-3])]
+
+                                                                                                                                                                                                                      [else
+                                                                                                                                                                                                                       [show-dialogue "You angrily stomp out of the room in defeat"]
+                                                                                                                                                                                                                       [game-loop game-state]]
+                                                                                                                                                                                                                      )}))]
+                                                                                                                                               )
                                                                                                                                           [show-dialogue "You use the key to unlock the passage"]
                                                                                                                                           [game-loop state-3]
                                                                                                                                           )]
@@ -188,4 +240,40 @@
                                                })]
         ))
 
-(define menu-list (list title main-menu north-path))
+; --- SOUTH PATH MENU ---------------------------------------------------------------------------------------------
+
+(define south-path
+  (list "south-path"
+        [list "Check your surroundings" "S" (lambda (game-state)
+                                              {begin
+                                                [show-dialogue "The section of the cave system that this passage has led you to is utterly massive.  When attempting to look for the edges of the chamber, all you see is pitch blackness"]
+                                                [show-dialogue "Searching the immediate vicinity, you see what appears to be a 3x3 formation of treasure chests.  To the right, there is another terminal"]
+                                                [define state-1 (remove-menu-item "south-path" "S" game-state)]
+                                                [define state-2 (add-menu-item state-1 "south-path" "Play chest game (1 mimic key)" "A" (lambda (game-state) "todo"))]
+                                                [define state-3 (add-menu-item state-2 "south-path" "Investigate the terminal" "B" (lambda (game-state) "todo"))]
+                                                [define state-4 (add-menu-item state-3 "south-path" "Try exploring the darkness" "C" (lambda (game-state) "todo"))]
+                                                [game-loop state-4]
+                                                })]
+                                                  
+                                                              
+        [list "Go back to main area" "R" (lambda (game-state)
+                                           {begin
+                                             [show-dialogue "You head back to the main area"]
+                                             [define state-1 (set-current-menu "main-menu" game-state)]
+                                             [game-loop state-1]
+                                             })]
+        [list "Info" "Z" (lambda (game-state)
+                                             {begin
+                                               [display-inventory game-state]
+                                               [displayln "  ---"]
+                                               [displayln (format "   COINS: ~a" (get-coin-count game-state))]
+                                               [displayln "  ---"]
+                                               [displayln "   CURRENT LOCATION: SOUTH PATH"]
+                                               [displayln "  ---"]
+                                               [displayln "   BRIEF DESCRIPTION: an expansive chamber of the cave system; it's so massive you can't even see the other side"]
+                                               [show-dialogue ""]
+                                               [game-loop game-state]
+                                               })]
+        ))
+
+(define menu-list (list title main-menu upgrade-menu north-path south-path))
