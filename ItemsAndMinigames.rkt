@@ -6,6 +6,8 @@
 
 (provide inventory-list)
 (provide number-guessing-game)
+(provide number-memorization-game)
+(provide mimic-game-1)
 
 ; --- ITEMS / INVENTORY LIST --------------------------------------------------------------
 
@@ -50,17 +52,70 @@
        #f]
 
       [(< (string->number guess) correct-number)               ; player's guess is less than the correct number
-       (displayln "Your guess is lower than the number")
+       (displayln "The correct number is higher")
        (loop correct-number (- guesses-left 1))]
       
       [(> (string->number guess) correct-number)               ; player's guess is greater than the correct number
-       (displayln "Your guess is higher than the number")
+       (displayln "The correct number is lower")
        (loop correct-number (- guesses-left 1))]
       ))
   
   (loop correct-number))
 
 ; --- NUMBER MEMORIZATION MINIGAME -----------------------------------------------------------------------------------
+
+(define random-facts ; from ChatGPT prompt "can you generate me a list of random interesting facts?"
+  [list "Did you know: The shortest war in history was between Britain and Zanzibar on August 27, 1896. It lasted only 38 minutes."
+        "Did you know: Octopuses have three hearts."
+        "Did you know: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible."
+        "Did you know: The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion."
+        "Did you know: Bananas are berries, but strawberries aren't."
+        "Did you know: The shortest complete sentence in the English language is \"I am.\""
+        "Did you know: The dot over the letter \"i\" is called a tittle."
+        "Did you know: The national animal of India is the Bengal tiger."
+        "Did you know: The only continent with no active volcanoes is Australia."
+        "Did you know: The longest English word without a vowel is \"rhythms.\""
+   ])
+
+(define (number-memorization-game)
+  (define num-1 (number->string (+ (random 90000) 10000))) ; random number between 10,000 and 99,999
+  (define num-2 (number->string (+ (random 90000) 10000))) ; random number between 10,000 and 99,999
+  (define num-list (list num-1 num-2))
+  (define random-fact (list-ref random-facts [random (length random-facts)]))
+  (define index-of-num-to-memorize [random (length num-list)])
+  (define num-to-memorize (list-ref num-list index-of-num-to-memorize))
+
+  (define (clear-console [lines-to-print 5000])
+    (if [= lines-to-print 0]
+        [displayln "................."]
+        [begin (displayln "*")
+               (clear-console (- lines-to-print 1))
+        ]
+        ))
+
+  (displayln "------------------------------------------")
+  (show-dialogue "Take note of the following information:")
+  (clear-console)
+  (show-dialogue (format "Number #1: ~a" num-1))
+  (clear-console)
+  (show-dialogue (format "Number #2: ~a" num-2))
+  (clear-console)
+  (show-dialogue random-fact)
+  (clear-console)
+  (display (format "What was number #~a?~n   >>>" (add1 index-of-num-to-memorize)))
+  (define answer (read-line))
+
+  (if [equal? answer num-to-memorize]
+      [begin (displayln "You win!\n------------------------------------------") #t]
+      [begin (displayln "You lose :(\n------------------------------------------") #f]
+      ))
+        
+      
+  
+  
+  
+  
+    
 
 ; --- MIMIC GAME -----------------------------------------------------------------------------------------------------
 
@@ -197,7 +252,3 @@ Message: there is no        Message: there is no        Message: there is no
 (define (mimic-game-1)
   (show-chests mimic-game-state-1)
   (mimic-game mimic-game-state-1))
-
-(mimic-game-1)
-
-  
