@@ -16,8 +16,9 @@
                         [list "KEY " #f #f #f]
                         [list "UPGRADE MODULE V1 " #f #f #f]
                         [list "UPGRADE MODULE V2 " #f #f #f]
-                        [list "LUCKY ROCK 1 " #f #f #f]
+                        [list "UPGRADE MODULE R " #f #f #f]
                         [list "MIMIC KEY " #f #t #f]
+                        [list "LANTERN " #f #f #f]
                         ))
 
 ; --- NUMBER GUESSING MINIGAME ---------------------------------------------------------------------------

@@ -127,63 +127,39 @@
 
 
 ; pre  -- takes an item-name and a game-state object
-; post -- returns an updated game-state object with updated collected? and in-inventory? flags for the passed item and displays
-;         a message to the console
+; post -- updates the flags of the item and returns the updated game-state object
+;         with the updated item
 (define (pick-up-item item-name game-state)
-  (define inventory-list (get-inventory-list game-state))
-  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
-                                     inventory-list)))
-  (define collected? (second target-item))
-  (define used? (fourth target-item))
+  (define updated-item (list item-name #t #t #f))
+  (show-dialogue (format "Picked up \"~a\"~n" item-name))
+  (_update-item updated-item game-state))
 
-  (cond
-    
-    [collected?
-     (show-dialogue "Item has already been collected")
-     game-state]
-    
-    [used?
-     (show-dialogue "Item has already been used")
-     game-state]
-    
-    [else
-     (let ([updated-item (list item-name #f #t #f)])
-       (show-dialogue (format "Picked up \"~a\"~n" item-name))
-       (_update-item updated-item game-state))]
-    ))
 
 ; pre  -- takes an item-name and a game-state object
 ; post -- returns an updated game-state object with updated in-inventory? and used? flags and displays a message to the console
 (define (use-item item-name game-state)
-  (define inventory-list (get-inventory-list game-state))
-  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
-                                     inventory-list)))
-  (define in-inventory? (third target-item))
-  (define used? (fourth target-item))
-
-  (cond
-
-    [used?
-     (show-dialogue "Item has already been used")
-     game-state]
-
-    [(not in-inventory?)
-     (show-dialogue "Item is not in inventory")
-     game-state]
-
-    [else
-     (let ([updated-item (list item-name #f #f #f)])
-       (_update-item updated-item game-state))]
-    ))
+  (define updated-item (list item-name #t #f #t))
+  (_update-item updated-item game-state))
 
 
 ; pre  -- takes an item name and a game-state object
-; post -- returns true if the item is in the player's inventory; false otherwise
+; post -- returns #t if the item is in the player's inventory; #f otherwise
 (define (item-in-inventory? item-name game-state)
-  (define inventory-list (get-inventory-list game-state))
-  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
-                                     inventory-list)))
+  (define target-item (_get-item item-name game-state))
   (third target-item))
+
+; pre  -- takes an item name and a game-state object
+; post -- returns #t if the item has been used; #f otherwise
+(define (item-used? item-name game-state)
+  (define target-item (_get-item item-name game-state))
+  (fourth target-item))
+
+
+; pre  -- takes an item name and a game-state object
+; post -- returns #t if the item has been collected; #f otherwise
+(define (item-collected? item-name game-state)
+  (define target-item (_get-item item-name game-state))
+  (second target-item))
      
      
 
@@ -196,6 +172,14 @@
                                    inventory-list))
   (define updated-inv-list (append (list updated-item) inv-list-no-item))
   (set-inventory-list updated-inv-list game-state))
+
+; pre  -- takes an item-name and a game-state object
+; post -- returns the item-object associated with the item-name from the game-state
+(define (_get-item item-name game-state)
+  (define inventory-list (get-inventory-list game-state))
+  (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
+                                     inventory-list)))
+  target-item)
   
 
 ; --- COIN FUNCTIONS -----------------------------------------------------
