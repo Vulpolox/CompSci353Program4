@@ -16,6 +16,8 @@
                         [list "USELESS KEEPSAKE " #t #t #f]
                         [list "KEY " #f #f #f]
                         [list "UPGRADE MODULE V1 " #f #f #f]
+                        [list "UPGRADE MODULE V2 " #f #f #f]
+                        [list "MIMIC KEY " #f #t #f]
                         ))
 
 ; --- NUMBER GUESSING MINIGAME ---------------------------------------------------------------------------
@@ -87,7 +89,7 @@
 
   (define (clear-console [lines-to-print 5000])
     (if [= lines-to-print 0]
-        [displayln "................."]
+        [displayln "------------------------------------------"]
         [begin (displayln "*")
                (clear-console (- lines-to-print 1))
         ]
@@ -107,7 +109,7 @@
 
   (if [equal? answer num-to-memorize]
       [begin (displayln "You win!\n------------------------------------------") #t]
-      [begin (displayln "You lose :(\n------------------------------------------") #f]
+      [begin (displayln (format "Number was ~a; You lose :(~n------------------------------------------" num-to-memorize)) #f]
       ))
         
       

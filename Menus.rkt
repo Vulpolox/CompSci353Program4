@@ -246,11 +246,66 @@
   (list "south-path"
         [list "Check your surroundings" "S" (lambda (game-state)
                                               {begin
-                                                [show-dialogue "The section of the cave system that this passage has led you to is utterly massive.  When attempting to look for the edges of the chamber, all you see is pitch blackness"]
+                                                [show-dialogue "The section of the cave system that this passage has led you to is utterly massive.  When attempting to look for the edges of the chamber, all you see is pitch black"]
                                                 [show-dialogue "Searching the immediate vicinity, you see what appears to be a 3x3 formation of treasure chests.  To the right, there is another terminal"]
                                                 [define state-1 (remove-menu-item "south-path" "S" game-state)]
-                                                [define state-2 (add-menu-item state-1 "south-path" "Play chest game (1 mimic key)" "A" (lambda (game-state) "todo"))]
-                                                [define state-3 (add-menu-item state-2 "south-path" "Investigate the terminal" "B" (lambda (game-state) "todo"))]
+                                                [define state-2 (add-menu-item state-1 "south-path" "Play chest game (1 mimic key)" "A" (lambda (game-state) {begin
+                                                                                                                                                               (cond
+                                                                                                                                                                 
+                                                                                                                                                                 [(item-in-inventory? "MIMIC KEY " game-state)
+                                                                                                                                                                  [show-dialogue "A sign next to the chests reads:\n\"Mimics always lie; real chests always tell the truth; find all real chests to win\""]
+                                                                                                                                                                  [let ([win? (mimic-game-1)]
+                                                                                                                                                                        [state-1 (use-item "MIMIC KEY " game-state)])
+                                                                                                                                                                    
+                                                                                                                                                                    (cond
+                                                                                                                                                                      [win? [let* ([state-2 (add-menu-item state-1 "upgrade-menu" "Use UPGRADE MODULE V2" "B" (lambda (game-state) {begin
+                                                                                                                                                                                                                                                                                     [let* ([state-1 (remove-menu-item "upgrade-menu" "B" game-state)]
+                                                                                                                                                                                                                                                                                            [state-2 (set-click-amount 100 state-1)]
+                                                                                                                                                                                                                                                                                            [state-3 (use-item "UPGRADE MODULE V2 " state-2)])
+                                                                                                                                                                                                                                                                                       (show-dialogue "You insert the upgrade module in the coin generator")
+                                                                                                                                                                                                                                                                                       (show-dialogue "Just like before, a screen lights up, this time saying: \"COIN AMOUNT SET TO 100\"")
+                                                                                                                                                                                                                                                                                       (game-loop state-3)]}
+                                                                                                                                                                                                                                                                ))]
+                                                                                                                                                                                                                                                                                       
+                                                                                                                                                                                   [state-3 (remove-menu-item "south-path" "A" state-2)]
+                                                                                                                                                                                   [state-4 (add-coins 1000 state-3)])
+                                                                                                                                                                              
+                                                                                                                                                                              (show-dialogue "Within the chests, you found 1000 coins and an upgrade module for your coin generator!")
+                                                                                                                                                                              (game-loop (pick-up-item "UPGRADE MODULE V2 " state-4))]]
+                                                                                                                                                                      
+                                                                                                                                                                      [else [let ([state-2 (set-coin-count 0 state-1)])
+                                                                                                                                                                              (show-dialogue "The mimic jumps on top of you and starts trying to eat you.  Luckily, you manage to distract it by thowing all of your coins away allowing you to barely escape")
+                                                                                                                                                                              (show-dialogue (format "-~a coins" (get-coin-count game-state)))
+                                                                                                                                                                              (game-loop state-2)]]
+                                                                                                                                                                      )]]
+
+                                                                                                                                                                 [else
+                                                                                                                                                                  [show-dialogue "You try and pry open each of the chests to no avail.  It seems you need some sort of key"]
+                                                                                                                                                                  [game-loop game-state]]
+                                                                                                                                                                 )}))]
+                                                                                                                                          
+                                                [define state-3 (add-menu-item state-2 "south-path" "Investigate the terminal" "B" (lambda (game-state) {begin
+                                                                                                                                                          [show-dialogue "You read the screen of the terminal"]
+                                                                                                                                                          [show-dialogue "\"Pay 30 coins to play memory game.  Prize: mimic key\""]
+
+                                                                                                                                                          (cond
+                                                                                                                                                            
+                                                                                                                                                            [(< (get-coin-count game-state) 30)
+                                                                                                                                                             [show-dialogue "Better go back to the coin generator to get some more coins"]
+                                                                                                                                                             [game-loop game-state]]
+
+                                                                                                                                                            [else
+                                                                                                                                                             [show-dialogue "You decide to play the game and insert 30 coins into the terminal"]
+                                                                                                                                                             [let ([win? (number-memorization-game)]
+                                                                                                                                                                   [state-1 (deduct-coins 30 game-state)])
+                                                                                                                                                               (cond
+                                                                                                                                                                 [win? (game-loop (pick-up-item "MIMIC KEY " state-1))]
+
+                                                                                                                                                                 [else
+                                                                                                                                                                  [show-dialogue "You kick the machine in frustration and angrily stomp away to vent"]
+                                                                                                                                                                  [game-loop state-1]])
+                                                                                                                                                             ]])}))]
+                                                                                                                                                            
                                                 [define state-4 (add-menu-item state-3 "south-path" "Try exploring the darkness" "C" (lambda (game-state) "todo"))]
                                                 [game-loop state-4]
                                                 })]

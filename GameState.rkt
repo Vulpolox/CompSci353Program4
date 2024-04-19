@@ -138,7 +138,7 @@
      game-state]
     
     [else
-     (let ([updated-item (list item-name #t #t #f)])
+     (let ([updated-item (list item-name #f #t #f)])
        (show-dialogue (format "Picked up \"~a\"~n" item-name))
        (_update-item updated-item game-state))]
     ))
@@ -163,7 +163,7 @@
      game-state]
 
     [else
-     (let ([updated-item (list item-name #t #f #t)])
+     (let ([updated-item (list item-name #f #f #f)])
        (_update-item updated-item game-state))]
     ))
 
@@ -207,7 +207,13 @@
   (define starting-amount (get-coin-count game-state))
   (define final-amount (- starting-amount coin-amount))
   (set-coin-count final-amount game-state))
-    
+
+; pre  -- takes an integer representing the amount of coins to add and a game-state object
+; post -- adds the specified amount of coins to game-state object and returns it
+(define (add-coins coin-amount game-state)
+  (define starting-amount (get-coin-count game-state))
+  (define final-amount (+ starting-amount coin-amount))
+  (set-coin-count final-amount game-state))
 
 
 ; pre  -- takes a game-state object and an integer
