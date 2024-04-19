@@ -312,7 +312,7 @@
 
                                                                                                                                                             (cond
                                                                                                                                                               [(< rand-num 5)
-                                                                                                                                                               (let* ([coin-amount (random 150)]
+                                                                                                                                                               (let* ([coin-amount (random 50)]
                                                                                                                                                                       [state-1 (add-coins coin-amount game-state)])
                                                                                                                                                                  [show-dialogue (format "You found ~a coins!" coin-amount)]
                                                                                                                                                                  [game-loop state-1])]
@@ -396,4 +396,44 @@
                                                })]
         ))
 
-(define menu-list (list title main-menu upgrade-menu north-path south-path))
+(define west-path
+  (list "west-path"
+        [list "Check your surroundings" "S" (lambda (game-state) {begin
+                                                                   [show-dialogue "todo area description"]
+                                                                   [define state-1 (add-menu-item game-state "west-path" "Fight the monster" "F" (lambda (game-state) {begin
+                                                                                                                                                                        (cond
+                                                                                                                                                                          
+                                                                                                                                                                          [(not (item-in-inventory? "SWORD " game-state))
+                                                                                                                                                                           (let* ([state-1 (set-coin-count 0 game-state)])
+                                                                                                                                                                             [show-dialogue "The monster beats you to a pulp and steals all of your coins.  Bummer!"]
+                                                                                                                                                                             [show-dialogue (format "-~a coins" (get-coin-count game-state))]
+                                                                                                                                                                             [game-loop state-1])]
+
+                                                                                                                                                                          [else
+                                                                                                                                                                           (let* ([state-1 (remove-menu-item "west-path" "F" game-state)])
+                                                                                                                                                                             "todo")]
+                                                                                                                                                                          )}))]
+                                                                   [define state-2 (add-menu-item game-state "west-path" "Enter the labyrinth" "A" (lambda (game-state) "todo"))]
+                                                                   [define state-3 (remove-menu-item "west-path" "S" state-2)]
+                                                                   [game-loop state-3]
+                                                                   })]
+                                                                   
+        [list "Go back to main area" "R" (lambda (game-state) {begin
+                                                                [show-dialogue "You head back to the main area"]
+                                                                [define state-1 (set-current-menu "main-menu" game-state)]
+                                                                [game-loop state-1]})]
+        [list "Info" "Z" (lambda (game-state)
+                                             {begin
+                                               [display-inventory game-state]
+                                               [displayln "  ---"]
+                                               [displayln (format "   COINS: ~a" (get-coin-count game-state))]
+                                               [displayln "  ---"]
+                                               [displayln "   CURRENT LOCATION: WEST PATH"]
+                                               [displayln "  ---"]
+                                               [displayln "   BRIEF DESCRIPTION: todo"]
+                                               [show-dialogue ""]
+                                               [game-loop game-state]
+                                               })]
+        ))
+
+(define menu-list (list title main-menu upgrade-menu north-path south-path west-path))
