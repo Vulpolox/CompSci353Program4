@@ -306,7 +306,8 @@
                                                                                                                                                                   [game-loop state-1]])
                                                                                                                                                              ]])}))]
                                                                                                                                                             
-                                                [define state-4 (add-menu-item state-3 "south-path" "Try exploring the darkness" "C" (lambda (game-state) "todo"))]
+                                                [define state-4 (add-menu-item state-3 "south-path" "Try exploring the darkness" "C" (lambda (game-state) {begin
+                                                                                                                                                            "todo"}))]
                                                 [game-loop state-4]
                                                 })]
                                                   

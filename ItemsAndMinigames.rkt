@@ -13,7 +13,6 @@
 
 (define inventory-list (list
                         [list "COIN GENERATOR " #f #f #f]
-                        [list "USELESS KEEPSAKE " #t #t #f]
                         [list "KEY " #f #f #f]
                         [list "UPGRADE MODULE V1 " #f #f #f]
                         [list "UPGRADE MODULE V2 " #f #f #f]
