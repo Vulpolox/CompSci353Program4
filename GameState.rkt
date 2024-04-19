@@ -104,6 +104,15 @@
   (set-menu-list updated-menu-list game-state))                                                                                        ; return a game-state object with the updated menu-list
 
 
+; pre  -- takes a menu-choice, a menu-name, and a game-state object
+; post -- returns #t if the menu-choice is in the menu corresponding to the specified menu-name;
+;         returns #f otherwise
+(define (in-menu? menu-choice menu-name game-state)
+  (define target-menu (find-menu menu-name game-state))
+  (valid? menu-choice target-menu))
+  
+
+
 ; --- INVENTORY-LIST FUNCTIONS --------------------------------------------
 
 ; pre  -- takes a game-state object

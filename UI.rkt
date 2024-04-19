@@ -4,6 +4,7 @@
 
 (provide make-choice)
 (provide show-dialogue)
+(provide valid?)
 
 ; --- MENU STUFF -----------------------------------------------------------------------------------------
 ; 

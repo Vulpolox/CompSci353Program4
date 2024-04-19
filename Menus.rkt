@@ -307,7 +307,39 @@
                                                                                                                                                              ]])}))]
                                                                                                                                                             
                                                 [define state-4 (add-menu-item state-3 "south-path" "Try exploring the darkness" "C" (lambda (game-state) {begin
-                                                                                                                                                            "todo"}))]
+                                                                                                                                                            [show-dialogue "You decide to try your luck exploring the darkness.  Who knows what you will find"]
+                                                                                                                                                            [define rand-num (random 10)]
+
+                                                                                                                                                            (cond
+                                                                                                                                                              [(< rand-num 5)
+                                                                                                                                                               (let* ([coin-amount (random 1000)]
+                                                                                                                                                                      [state-1 (add-coins coin-amount game-state)])
+                                                                                                                                                                 [show-dialogue (format "You found ~a coins!" coin-amount)]
+                                                                                                                                                                 [game-loop state-1])]
+
+                                                                                                                                                              [(= rand-num 5)
+                                                                                                                                                               (let* ([state-1 (set-coin-count 0 game-state)])
+                                                                                                                                                                 [show-dialogue "A giant spider attacks you!  You lose all of your coins trying to escape."]
+                                                                                                                                                                 [game-loop state-1])]
+
+                                                                                                                                                              [(and (< rand-num 7) (not (item-in-inventory? "LUCKY ROCK 1 " game-state)))
+                                                                                                                                                               (let* ([state-1 (add-menu-item game-state "south-path" "Pick up LUCKY ROCK 1" "D" (lambda (game-state) {begin
+                                                                                                                                                                                                                                                                            "todo"}))])
+                                                                                                                                                                 [show-dialogue "You found a strange upgrade module!"]
+                                                                                                                                                                 [game-loop state-1])]
+
+                                                                                                                                                              [(item-in-inventory? "LANTERN " game-state)
+                                                                                                                                                               (let* ([state-1 (add-menu-item game-state "south-path" "Enter secret passage" "E" (lambda (game-state) {begin
+                                                                                                                                                                                                                                                                        "todo"}))])
+                                                                                                                                                                 [show-dialogue "With the help of the lantern, you find a secret passage!"]
+                                                                                                                                                                 [game-loop state-1])]
+                                                                                                                                                                 
+
+                                                                                                                                                              
+
+                                                                                                                                                              
+                                                                                                                                                               
+                                                                                                                                                                 
                                                 [game-loop state-4]
                                                 })]
                                                   
