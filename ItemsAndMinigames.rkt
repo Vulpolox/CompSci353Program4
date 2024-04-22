@@ -19,6 +19,7 @@
                         [list "UPGRADE MODULE R " #f #f #f]
                         [list "MIMIC KEY " #f #t #f]
                         [list "LANTERN " #f #f #f]
+                        [list "SWORD " #f #f #f]
                         ))
 
 ; --- NUMBER GUESSING MINIGAME ---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 (provide (all-defined-out))
 
 ; NOTES:
-;   format of menus           : '(menu-name '(message-1 choice-1 function-1) ... '(message-n choice-n function-n))
+;   format of menus           : '(menu-name '(desc-1 choice-1 function-1) ... '(desc-n choice-n function-n))
 ;   format of items           : '(item-name collected? in-inventory? used?)
 ;   format of menu-lists      : '(menu-1 menu-1 ... menu-n)
 ;   format of inventory-lists : '(item-1 item-2 ... item-n)
@@ -65,7 +65,7 @@
 (define (set-click-amount new-click-amount game-state)
   (list (get-current-menu-name game-state) (get-menu-list game-state) (get-inventory-list game-state) (get-coin-count game-state) new-click-amount))
 
-; --- MENU-LIST FUNCTIONS -------------------------------------------------
+; --- MENU FUNCTIONS -------------------------------------------------
 
 ; pre  -- takes a menu-name and a game-state object
 ; post -- returns the menu-object corresponding to the specified menu-name
@@ -89,6 +89,7 @@
   (define updated-menu-list (append (list updated-menu) old-menu-list-no-outdated-entry))                                         ; the final, updated menu-list
   (set-menu-list updated-menu-list game-state))                                                                                   ; return a game-state object with the updated menu-list
 
+
 ; pre  -- takes a menu-name, a choice-to-remove, and a game-state object
 ; post -- returns a new game-state object with the menu-item removed
 ;         from the menu-object specified by the passed menu-name and choice-to-remove parameters in the new game-state object's menu-list 
@@ -110,8 +111,28 @@
 (define (in-menu? menu-choice menu-name game-state)
   (define target-menu (find-menu menu-name game-state))
   (valid? menu-choice target-menu))
-  
 
+
+; pre  -- takes a menu-object and a menu-choice
+; post -- returns #t if the choice is in the menu, otherwise #f
+; signature: (menu-object, menu-choice) -> bool
+(define (_in-menu? menu-choice menu-object)
+  (valid? menu-choice menu-object))
+
+
+; pre  -- takes a menu-object
+; post -- returns a menu-choice that is not yet in the menu-object
+; signature: menu-object -> menu-choice
+(define (_generate-menu-choice menu-object [test-choice #\A])
+  (cond
+    [(_in-menu? (string test-choice) menu-object)   ; if the menu-choice exists in the menu, recursively call function with next letter as the menu-choice
+     (_generate-menu-choice menu-object [integer->char (add1 (char->integer test-choice))] )]
+
+    [else (string test-choice)]                     ; if the menu-choice doesn't exist in menu, return it
+    ))
+
+    
+  
 
 ; --- INVENTORY-LIST FUNCTIONS --------------------------------------------
 
@@ -131,7 +152,7 @@
 ;         with the updated item
 (define (pick-up-item item-name game-state)
   (define updated-item (list item-name #t #t #f))
-  (show-dialogue (format "Picked up \"~a\"~n" item-name))
+  (show-dialogue (format "Picked up ~a" item-name))
   (_update-item updated-item game-state))
 
 
@@ -160,9 +181,57 @@
 (define (item-collected? item-name game-state)
   (define target-item (_get-item item-name game-state))
   (second target-item))
-     
-     
 
+
+; pre  -- takes a game-state object
+; post -- procedurally creates a drop-menu containing all items withing the game-state's inventory,
+;         gets a valid choice from the drop-menu for the item to drop, removes the item chosen from the game-state's inventory,
+;         and adds an option to pick the item back up to the game-state's current menu (this one is going to be ugly)
+; signature: game-state -> game-state
+(define (drop-item game-state)
+  (define current-menu-name (get-current-menu-name game-state))              ; the string name of the current-menu
+  (define current-menu (find-menu current-menu-name game-state))             ; the menu that is currently being displayed by calling (game-loop game-state)
+  (define items-in-inventory (filter [lambda (item) (item-in-inventory? (first item) game-state)]
+                                     [get-inventory-list game-state]))       ; a list of all items in the player's inventory; items formatted as '(item-name bool bool bool)
+
+  (define (create-drop-menu items-in-inventory [output-menu '("drop-menu")]) ; function for creating a drop-menu; drop-menus aren't stored in game-state but are instead dynamically generated based on items in inventory
+    (cond
+      [(empty? items-in-inventory) output-menu]                              ; base case: a menu-item has been created and added to the drop-menu for every item in the player's inventory;
+                                                                             ; return the generated drop-menu
+      [else
+       (let* {[current-item-name (first (first items-in-inventory))]         ; the item-name of the item at the front of items-in-inventory, 
+              [menu-option-to-add (list (format "Drop ~a" current-item-name) ; menu-item to add; formatted as such: '(description menu-choice function)
+                                        (_generate-menu-choice output-menu)  ; generates a menu-choice (i.e. "A," "B," ...) that is not currently in output-menu
+                                        (lambda (game-state) {begin          ; the function that is called from the user selecting the corresponding menu-choice from the drop-menu
+                                                               (let* ([new-choice (_generate-menu-choice current-menu)]   ; generate a menu-choice (i.e. "A," "B," ...) that isn't yet present in the current-menu
+                                                                      [state-1 (add-menu-item game-state current-menu-name (format "Pick up ~a" current-item-name) new-choice (lambda (game-state) {begin   ; add a menu-item to current-menu that picks up the item
+                                                                                                                                                                                                            ; and removes itself when chosen
+                                                                                                                                                                                     (let* ([state-1 (pick-up-item current-item-name game-state)]
+                                                                                                                                                                                            [state-2 (remove-menu-item current-menu-name new-choice state-1)])
+                                                                                                                                                                                       [game-loop state-2])}))]
+                                                                      [state-2 (use-item current-item-name state-1)])     ; drop the item
+                                                                 [show-dialogue (format "Dropped ~a" current-item-name)]
+                                                                 state-2)}))]                                             ; state-2 is returned if the corresponding item from the generated drop-menu is chosen (each item will have its own state-2)
+              [updated-output-menu (append output-menu (list menu-option-to-add))]
+              }
+         (create-drop-menu (cdr items-in-inventory) updated-output-menu)                                                  ; recursively call the function until a menu-item is created for every item in the player's inventory and appended to the menu-object
+         )]
+      ))
+ 
+  (define drop-menu (create-drop-menu items-in-inventory)) ; create a drop-menu for the items currently in the player's inventory
+
+  (cond
+    
+    [(empty? items-in-inventory)                           ; if there are no items in the player's inventory, tell them and return an unmodified game-state
+     (show-dialogue "No items to drop")
+     game-state]
+
+    [else ((make-choice drop-menu) game-state)]            ; gets a menu-choice from the drop-menu from user input and then calls its corresponding function, passing to it the current game-state;
+                                                           ; this will return a modified game-state with the item absent from the inventory and the option in the current-menu to pick it back up
+
+    ))
+
+  
 ; pre  -- takes an updated-item and a game-state object
 ; post -- returns a new game-state object with its inventory-list updated to contain the new parameters of the updated-item
 ;         
@@ -173,6 +242,7 @@
   (define updated-inv-list (append (list updated-item) inv-list-no-item))
   (set-inventory-list updated-inv-list game-state))
 
+  
 ; pre  -- takes an item-name and a game-state object
 ; post -- returns the item-object associated with the item-name from the game-state
 (define (_get-item item-name game-state)
@@ -220,3 +290,4 @@
 ; post -- displays how many coins the player has
 (define (print-money game-state)
   (show-dialogue (format "You have ~a coin(s)" (get-coin-count game-state))))
+

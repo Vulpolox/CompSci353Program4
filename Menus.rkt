@@ -101,6 +101,11 @@
                                                           )}
                                                       )]
         [list "Escape (1,000,000 coins)" "E" (lambda (game-state) "todo")]
+        [list "Drop item" "W" (lambda (game-state)
+                                {begin
+                                  [define state-1 (drop-item game-state)]
+                                  [game-loop state-1]
+                                  })]
         [list "Check your surroundings" "S" (lambda (game-state)
                                               {begin
                                                 [show-dialogue "You take a look around. There are four blocked paths in each of the cardinal directions but no way to advance.\nOut of the corner of your eye, you spot a strange device"]
