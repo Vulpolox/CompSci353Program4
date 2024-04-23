@@ -152,7 +152,54 @@
                                           [define state-1 (set-current-menu "main-menu" game-state)]
                                           [game-loop state-1]
                                           })]
-        [list "Upgrade 1 (1x UPGRADE MODULE V1)" (lambda (game-state) {begin "todo"})]
+        [list "Upgrade 1  (1x UPGRADE MODULE V1)" "A" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE V1 " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
+        [list "Upgrade 2  (1x UPGRADE MODULE V2)" "B" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE V2 " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
+        [list "Upgrade 3  (1x UPGRADE MODULE V3)" "C" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE V3 " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
+        [list "Upgrade 4  (1x UPGRADE MODULE V4)" "D" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE V4 " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
+        [list "Upgrade ?  (1x UPGRADE MODULE R)" "E" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE R " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
+        [list "Upgrade ?? (1x UPGRADE MODULE R2)" "F" (lambda (game-state) {begin
+                                                                            (cond
+                                                                              [(not (item-in-inventory? "UPGRADE MODULE R2 " game-state))
+                                                                               [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [else
+                                                                               "todo"])})]
         ))
 
 ; --- NORTH PATH MENU -------------------------------------------------------------------------------
