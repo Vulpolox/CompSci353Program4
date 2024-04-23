@@ -159,7 +159,13 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (use-item "UPGRADE MODULE V1 " game-state)]
+                                                                                      [state-2 (remove-menu-item "upgrade-menu" "A" state-1)]
+                                                                                      [state-3 (increment-click-amount 10 state-2)])
+                                                                                 [show-dialogue "You insert the upgrade module into the coin generator"]
+                                                                                 [show-dialogue "A screen lights up and displays a message: \"COIN AMOUNT + 10\""]
+                                                                                 [game-loop state-3])]
+                                                                              )})]
         [list "Upgrade 2  (1x UPGRADE MODULE V2)" "B" (lambda (game-state) {begin
                                                                             (cond
                                                                               [(not (item-in-inventory? "UPGRADE MODULE V2 " game-state))
@@ -167,7 +173,13 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (remove-menu-item "upgrade-menu" "B" game-state)]
+                                                                                      [state-2 (increment-click-amount 100 state-1)]
+                                                                                      [state-3 (use-item "UPGRADE MODULE V2 " state-2)])
+                                                                                 (show-dialogue "You insert the upgrade module in the coin generator")
+                                                                                 (show-dialogue "Just like before, a screen lights up, this time saying: \"COIN AMOUNT + 100\"")
+                                                                                 (game-loop state-3))]
+                                                                              )})]
         [list "Upgrade 3  (1x UPGRADE MODULE V3)" "C" (lambda (game-state) {begin
                                                                             (cond
                                                                               [(not (item-in-inventory? "UPGRADE MODULE V3 " game-state))
@@ -191,11 +203,35 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (remove-menu-item "main-menu" "P" game-state)]
+                                                                                      [state-2 (add-menu-item state-1 "main-menu" "Press the coin button" "P" (lambda (game-state) {begin
+                                                                                                                                                                                     [define rand-num (random 10)]
+                                                                                                                                                                                     [define state-1 (click game-state)]
+                                                                                                                                                                                     (cond
+                                                                                                                                                                                       [(>= rand-num 7)
+                                                                                                                                                                                        (let* ([bonus (floor (/ (get-coin-count game-state) 5))]
+                                                                                                                                                                                               [adjusted-bonus (min bonus 1000)]
+                                                                                                                                                                                               [state-2 (add-coins adjusted-bonus state-1)])
+                                                                                                                                                                                          [show-dialogue (format "You recieved ~a bonus coins; you now have ~a coins" adjusted-bonus (get-coin-count state-2))]
+                                                                                                                                                                                          [game-loop state-2])]
+
+                                                                                                                                                                                       [else
+                                                                                                                                                                                        [game-loop state-1]])}))]
+                                                                                      [state-3 (use-item "UPGRADE MODULE R " state-2)]
+                                                                                      [state-4 (remove-menu-item "upgrade-menu" "E" state-3)])
+                                                                                 [show-dialogue "You insert the strange upgrade module into the coin generator"]
+                                                                                 [show-dialogue "On the screen, you read: \"R MODE ACTIVATED\""]
+                                                                                 [show-dialogue "You will now have a 30% chance of receiving 0.2x your total coins\nper press of the button; this bonus caps at 1,000 coins"]
+                                                                                 [game-loop state-4])]
+                                                                              )})]
         [list "Upgrade ?? (1x UPGRADE MODULE R2)" "F" (lambda (game-state) {begin
                                                                             (cond
                                                                               [(not (item-in-inventory? "UPGRADE MODULE R2 " game-state))
                                                                                [show-dialogue "You don't have this upgrade yet"]
+                                                                               [game-loop game-state]]
+
+                                                                              [(not (item-used? "UPGRADE MODULE R " game-state))
+                                                                               [show-dialogue "You need UPGRADE MODULE R installed for this one to work"]
                                                                                [game-loop game-state]]
 
                                                                               [else
@@ -237,21 +273,11 @@
                                                                                                                                                                                                                     (cond
                                                                                                                                                                                                                       [win?
                                                                                                                                                                                                                        (let* ([state-1 (pick-up-item "UPGRADE MODULE V1 " game-state)]
-                                                                                                                                                                                                                              [state-2 (remove-menu-item "north-path" "B" state-1)]
-                                                                                                                                                                                                                              [state-3 (add-menu-item state-2 "upgrade-menu" "Use UPGRADE MODULE V1" "A" (lambda (game-state)
-                                                                                                                                                                                                                                                                                                           {begin
-                                                                                                                                                                                                                                                                                                             [define state-1 (use-item "UPGRADE MODULE V1 " game-state)]
-                                                                                                                                                                                                                                                                                                             [define state-2 (remove-menu-item "upgrade-menu" "A" state-1)]
-                                                                                                                                                                                                                                                                                                             [define state-3 (set-click-amount 10 state-2)]
-                                                                                                                                                                                                                                                                                                             [show-dialogue "You insert the upgrade module into the coin generator"]
-                                                                                                                                                                                                                                                                                                             [show-dialogue "A screen lights up and displays a message: \"COIN AMOUNT SET TO 10\""]
-                                                                                                                                                                                                                                                                                                             [game-loop state-3]
-                                                                                                                                                                                                                                                                                                             }))]
-                                                                                                                                                                                                                              )
+                                                                                                                                                                                                                              [state-2 (remove-menu-item "north-path" "B" state-1)])
                                                                                                                                                                                                                          [show-dialogue "The ground starts shaking around you"]
                                                                                                                                                                                                                          [show-dialogue "You quickly jump out from the passage before it collapses behind you.  \"Well, that was close!\""]
                                                                                                                                                                                                                          [show-dialogue "You should use the upgrade you just found on your coin generator"]
-                                                                                                                                                                                                                         [game-loop state-3])]
+                                                                                                                                                                                                                         [game-loop state-2])]
 
                                                                                                                                                                                                                       [else
                                                                                                                                                                                                                        [show-dialogue "You angrily stomp out of the room in defeat"]
@@ -312,20 +338,10 @@
                                                                                                                                                                         [state-1 (use-item "MIMIC KEY " game-state)])
                                                                                                                                                                     
                                                                                                                                                                     (cond
-                                                                                                                                                                      [win? [let* ([state-2 (add-menu-item state-1 "upgrade-menu" "Use UPGRADE MODULE V2" "B" (lambda (game-state) {begin
-                                                                                                                                                                                                                                                                                     [let* ([state-1 (remove-menu-item "upgrade-menu" "B" game-state)]
-                                                                                                                                                                                                                                                                                            [state-2 (set-click-amount 100 state-1)]
-                                                                                                                                                                                                                                                                                            [state-3 (use-item "UPGRADE MODULE V2 " state-2)])
-                                                                                                                                                                                                                                                                                       (show-dialogue "You insert the upgrade module in the coin generator")
-                                                                                                                                                                                                                                                                                       (show-dialogue "Just like before, a screen lights up, this time saying: \"COIN AMOUNT SET TO 100\"")
-                                                                                                                                                                                                                                                                                       (game-loop state-3)]}
-                                                                                                                                                                                                                                                                ))]
-                                                                                                                                                                                                                                                                                       
-                                                                                                                                                                                   [state-3 (remove-menu-item "south-path" "A" state-2)]
-                                                                                                                                                                                   [state-4 (add-coins 1000 state-3)])
-                                                                                                                                                                              
+                                                                                                                                                                      [win? [let* ([state-2 (remove-menu-item "south-path" "A" state-1)]
+                                                                                                                                                                                   [state-3 (add-coins 1000 state-2)])                                                                                                  
                                                                                                                                                                               (show-dialogue "Within the chests, you found 1000 coins and an upgrade module for your coin generator!")
-                                                                                                                                                                              (game-loop (pick-up-item "UPGRADE MODULE V2 " state-4))]]
+                                                                                                                                                                              (game-loop (pick-up-item "UPGRADE MODULE V2 " state-3))]]
                                                                                                                                                                       
                                                                                                                                                                       [else [let ([state-2 (set-coin-count 0 state-1)])
                                                                                                                                                                               (show-dialogue "The mimic jumps on top of you and starts trying to eat you.  Luckily, you manage to distract it by thowing all of your coins away allowing you to barely escape")
@@ -336,6 +352,7 @@
                                                                                                                                                                  [else
                                                                                                                                                                   [show-dialogue "You try and pry open each of the chests to no avail.  It seems you need some sort of key"]
                                                                                                                                                                   [game-loop game-state]]
+                                                                                                                                                                 
                                                                                                                                                                  )}))]
                                                                                                                                           
                                                 [define state-3 (add-menu-item state-2 "south-path" "Investigate the terminal" "B" (lambda (game-state) {begin
@@ -376,29 +393,8 @@
                                                                                                                                                                [game-loop game-state]]
 
                                                                                                                                                               [(and (< rand-num 8) (not (item-collected? "UPGRADE MODULE R " game-state)))
-                                                                                                                                                               [let* ([state-1 (add-menu-item game-state "upgrade-menu" "Use UPGRADE MODULE R" "C" (lambda (game-state) {begin
-                                                                                                                                                                                                                                                                          [show-dialogue "You insert the strange upgrade module into the coin generator"]
-                                                                                                                                                                                                                                                                          [show-dialogue "On the screen, you read: \"R MODE ACTIVATED\""]
-                                                                                                                                                                                                                                                                          [show-dialogue "You will now have a 30% chance of receiving 0.2x your total coins\nper press of the button; this bonus caps at 1,000 coins"]
-                                                                                                                                                                                                                                                                          [define state-1 (remove-menu-item "main-menu" "P" game-state)]
-                                                                                                                                                                                                                                                                          [define state-2 (add-menu-item state-1 "main-menu" "Press the coin button" "P" (lambda (game-state) {begin
-                                                                                                                                                                                                                                                                                                                                                                                [define rand-num (random 10)]
-                                                                                                                                                                                                                                                                                                                                                                                [define state-1 (click game-state)]
-                                                                                                                                                                                                                                                                                                                                                                                (cond
-                                                                                                                                                                                                                                                                                                                                                                                  [(>= rand-num 7)
-                                                                                                                                                                                                                                                                                                                                                                                   (let* ([bonus (floor (/ (get-coin-count game-state) 5))]
-                                                                                                                                                                                                                                                                                                                                                                                          [adjusted-bonus (min bonus 1000)]
-                                                                                                                                                                                                                                                                                                                                                                                          [state-2 (add-coins adjusted-bonus state-1)])
-                                                                                                                                                                                                                                                                                                                                                                                     [show-dialogue (format "You recieved ~a bonus coins; you now have ~a coins" adjusted-bonus (get-coin-count state-2))]
-                                                                                                                                                                                                                                                                                                                                                                                     [game-loop state-2])]
-
-                                                                                                                                                                                                                                                                                                                                                                                  [else
-                                                                                                                                                                                                                                                                                                                                                                                   [game-loop state-1]])}))]
-                                                                                                                                                                                                                                                                          [define state-3 (use-item "UPGRADE MODULE R " state-2)]
-                                                                                                                                                                                                                                                                          [define state-4 (remove-menu-item "upgrade-menu" "C" state-3)]
-                                                                                                                                                                                                                                                                          [game-loop state-4]}))])
                                                                                                                                                                  [show-dialogue "You found a strange upgrade module!"]
-                                                                                                                                                                 [game-loop (pick-up-item "UPGRADE MODULE R " state-1)]]]
+                                                                                                                                                                 [game-loop (pick-up-item "UPGRADE MODULE R " game-state)]]
 
                                                                                                                                                               [(item-in-inventory? "LANTERN " game-state)
                                                                                                                                                                (let* ([state-1 (use-item "LANTERN " game-state)]
@@ -500,4 +496,21 @@
                                                })]
         ))
 
+; menu-list to provide for use in the starting game-state
 (define menu-list (list title main-menu upgrade-menu north-path south-path west-path))
+
+
+; pre  -- takes a game-state object and a string key
+; post -- returns a modified game state based on the key;
+;         this function exists mainly to aid in code readability,
+;         especially with nested add-menu-item calls
+; signature: (game-state, string) -> game-state
+(define (un-nester game-state key)
+  (cond
+    
+    [(equal? key "test-key")
+     "modify the game state and return it"]
+
+
+  ))
+

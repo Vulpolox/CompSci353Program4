@@ -35,9 +35,6 @@
 (define (get-valid-choices menu-object)
   (_get-at-index (cdr menu-object) 1))
 
-;(define (valid? choice menu-object)
-;  (not (equal? (member choice (get-valid-choices menu-object)) #f)))
-
 (define (valid? choice menu-object)
   (list? (member choice (get-valid-choices menu-object))))
 

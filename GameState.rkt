@@ -163,10 +163,18 @@
 
 
 ; pre  -- takes an item-name and a game-state object
-; post -- returns an updated game-state object with updated in-inventory? and used? flags and displays a message to the console
+; post -- returns an updated game-state object with updated in-inventory? and used? flags
 ; signature: (item-name, game-state) -> game-state
 (define (use-item item-name game-state)
   (define updated-item (list item-name #t #f #t))
+  (_update-item updated-item game-state))
+
+
+; pre  -- takes an item-name and a game-state object
+; post -- returns an updated game-state object with updated in-inventory? and used? flags
+; signature: (item-name, game-state) -> game-state
+(define (place-item item-name game-state)
+  (define updated-item (list item-name #t #f #f))
   (_update-item updated-item game-state))
 
 
@@ -219,7 +227,7 @@
                                                                                                                                                                                      (let* ([state-1 (pick-up-item current-item-name game-state)]
                                                                                                                                                                                             [state-2 (remove-menu-item current-menu-name new-choice state-1)])
                                                                                                                                                                                        [game-loop state-2])}))]
-                                                                      [state-2 (use-item current-item-name state-1)])     ; drop the item
+                                                                      [state-2 (place-item current-item-name state-1)])   ; drop the item
                                                                  [show-dialogue (format "Dropped ~a" current-item-name)]
                                                                  state-2)}))]                                             ; state-2 is returned if the corresponding item from the generated drop-menu is chosen (each item will have its own state-2)
               [updated-output-menu (append output-menu (list menu-option-to-add))]
