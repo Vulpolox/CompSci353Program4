@@ -192,7 +192,7 @@
   (define current-menu-name (get-current-menu-name game-state))              ; the string name of the current-menu
   (define current-menu (find-menu current-menu-name game-state))             ; the menu that is currently being displayed by calling (game-loop game-state)
   (define items-in-inventory (filter [lambda (item) (item-in-inventory? (first item) game-state)]
-                                     [get-inventory-list game-state]))       ; a list of all items in the player's inventory; items formatted as '(item-name bool bool bool)
+                                     [get-inventory-list game-state]))       ; a list of all items in the player's inventory; items are formatted as '(item-name bool bool bool)
 
   (define (create-drop-menu items-in-inventory [output-menu '("drop-menu")]) ; function for creating a drop-menu; drop-menus aren't stored in game-state but are instead dynamically generated based on items in inventory
     (cond
