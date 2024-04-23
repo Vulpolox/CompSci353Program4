@@ -70,6 +70,7 @@
 ; pre  -- takes a menu-name and a game-state object
 ; post -- returns the menu-object corresponding to the specified menu-name
 ;         within the game-state's menu-list
+; signature: (menu-name, game-state) -> menu-object
 (define (find-menu menu-name game-state)
   (define menu-list (get-menu-list game-state))                          ; the menu-list of the game-state object
   (define target (filter [lambda (menu) (equal? (first menu) menu-name)] ; use filter to find the correct menu from menu-list
@@ -78,7 +79,8 @@
 
 ; pre  -- takes a menu-name, a message, a choice, a function, and a game-state object
 ; post -- returns a new game-state object with the specified message, choice, and function appended to the menu-items section of the menu-object specified
-;         by menu-name within the new game-state's menu-list (quite a mouthfull, I know)
+;         by menu-name within the new game-state's menu-list
+; signature: (game-state, menu-name, menu-message, menu-choice, function) -> game-state
 (define (add-menu-item game-state menu-name message choice func)
   (define menu-item-to-add (list message choice func))                                                                            ; the menu item to add
   (define menu-to-update (find-menu menu-name game-state))                                                                        ; the menu to which the new menu item will be added
@@ -92,7 +94,8 @@
 
 ; pre  -- takes a menu-name, a choice-to-remove, and a game-state object
 ; post -- returns a new game-state object with the menu-item removed
-;         from the menu-object specified by the passed menu-name and choice-to-remove parameters in the new game-state object's menu-list 
+;         from the menu-object specified by the passed menu-name and choice-to-remove parameters in the new game-state object's menu-list
+; signature: (menu-name, menu-choice, game-state) -> game-state
 (define (remove-menu-item menu-name choice-to-remove game-state)
   (define target-menu (find-menu menu-name game-state))                                                                                ; the menu-object from which the menu-item will be removed
   (define updated-target-menu (filter [lambda (menu-item) (not (equal? (second menu-item) choice-to-remove))]                          ; the updated menu-object without the menu-item (but missing the name)
@@ -108,6 +111,7 @@
 ; pre  -- takes a menu-choice, a menu-name, and a game-state object
 ; post -- returns #t if the menu-choice is in the menu corresponding to the specified menu-name;
 ;         returns #f otherwise
+; signature: (menu-choice, menu-name, game-state) -> bool
 (define (in-menu? menu-choice menu-name game-state)
   (define target-menu (find-menu menu-name game-state))
   (valid? menu-choice target-menu))
@@ -138,6 +142,7 @@
 
 ; pre  -- takes a game-state object
 ; post -- displays all items whose in-inventory? flag is set to #t
+; signature: game-state -> void
 (define (display-inventory game-state)
   (define inventory-list (get-inventory-list game-state))
   (define owned-items (filter [lambda (item) (equal? (third item) #t)]
@@ -150,6 +155,7 @@
 ; pre  -- takes an item-name and a game-state object
 ; post -- updates the flags of the item and returns the updated game-state object
 ;         with the updated item
+; signature: (item-name, game-state) -> game-state
 (define (pick-up-item item-name game-state)
   (define updated-item (list item-name #t #t #f))
   (show-dialogue (format "Picked up ~a" item-name))
@@ -158,6 +164,7 @@
 
 ; pre  -- takes an item-name and a game-state object
 ; post -- returns an updated game-state object with updated in-inventory? and used? flags and displays a message to the console
+; signature: (item-name, game-state) -> game-state
 (define (use-item item-name game-state)
   (define updated-item (list item-name #t #f #t))
   (_update-item updated-item game-state))
@@ -165,12 +172,14 @@
 
 ; pre  -- takes an item name and a game-state object
 ; post -- returns #t if the item is in the player's inventory; #f otherwise
+; signature: (item-name, game-state) -> bool
 (define (item-in-inventory? item-name game-state)
   (define target-item (_get-item item-name game-state))
   (third target-item))
 
 ; pre  -- takes an item name and a game-state object
 ; post -- returns #t if the item has been used; #f otherwise
+; signature: (item-name, game-state) -> bool
 (define (item-used? item-name game-state)
   (define target-item (_get-item item-name game-state))
   (fourth target-item))
@@ -178,6 +187,7 @@
 
 ; pre  -- takes an item name and a game-state object
 ; post -- returns #t if the item has been collected; #f otherwise
+; signature: (item-name, game-state) -> bool
 (define (item-collected? item-name game-state)
   (define target-item (_get-item item-name game-state))
   (second target-item))
@@ -185,7 +195,7 @@
 
 ; pre  -- takes a game-state object
 ; post -- procedurally creates a drop-menu containing all items withing the game-state's inventory,
-;         gets a valid choice from the drop-menu for the item to drop, removes the item chosen from the game-state's inventory,
+;         gets a valid choice from the drop-menu from the user, removes the item chosen from the game-state's inventory,
 ;         and adds an option to pick the item back up to the game-state's current menu (this one is going to be ugly)
 ; signature: game-state -> game-state
 (define (drop-item game-state)
@@ -234,7 +244,7 @@
   
 ; pre  -- takes an updated-item and a game-state object
 ; post -- returns a new game-state object with its inventory-list updated to contain the new parameters of the updated-item
-;         
+; signature: item-object -> game-state
 (define (_update-item updated-item game-state)
   (define inventory-list (get-inventory-list game-state))
   (define inv-list-no-item (filter [lambda (item) (not (equal? (first item) (first updated-item)))]                            
@@ -245,6 +255,7 @@
   
 ; pre  -- takes an item-name and a game-state object
 ; post -- returns the item-object associated with the item-name from the game-state
+; signature: (item-name game-state) -> item-object
 (define (_get-item item-name game-state)
   (define inventory-list (get-inventory-list game-state))
   (define target-item (first (filter [lambda (item) (equal? (first item) item-name)]
@@ -257,6 +268,7 @@
 
 ; pre  -- takes a game-state object
 ; post -- increments the coin-count field of the game-object by click-amount and returns the updated game-state object
+; signature: game-state -> game-state
 (define (click game-state)
   (define new-coin-count (+ (get-coin-count game-state) (get-click-amount game-state)))
   (define new-state (set-coin-count new-coin-count game-state))
@@ -266,13 +278,16 @@
 
 ; pre  -- takes an integer representing the amount of coins to deduct and a game-state object
 ; post -- deducts the specified amount of coins from the game-state object and returns it
+; signature: (int, game-state) -> game-state
 (define (deduct-coins coin-amount game-state)
   (define starting-amount (get-coin-count game-state))
   (define final-amount (- starting-amount coin-amount))
-  (set-coin-count final-amount game-state))
+  (if (< final-amount 0) [set-coin-count 0 game-state]
+                         [set-coin-count final-amount game-state]))
 
 ; pre  -- takes an integer representing the amount of coins to add and a game-state object
 ; post -- adds the specified amount of coins to game-state object and returns it
+; signature: (int, game-state) -> game-state
 (define (add-coins coin-amount game-state)
   (define starting-amount (get-coin-count game-state))
   (define final-amount (+ starting-amount coin-amount))
@@ -281,6 +296,7 @@
 
 ; pre  -- takes a game-state object and an integer
 ; post -- increments the click-amount field of the game-state by the passed integer and returns the updated game-state object
+; signature: (int, game-state) -> game-state
 (define (increment-click-amount amount game-state)
   (define new-click-amount (+ (get-click-amount game-state) amount))
   (set-click-amount new-click-amount game-state))
@@ -288,6 +304,68 @@
 
 ; pre  -- takes a game-state object
 ; post -- displays how many coins the player has
+; signature: game-state -> void
 (define (print-money game-state)
   (show-dialogue (format "You have ~a coin(s)" (get-coin-count game-state))))
+
+#| Enjoy this ascii art
+
+               @                                             #*%                       
+              #+*                                           *+*#                       
+              **#%                                         %***#%                      
+              **##%                                        #+#**#                      
+             #=+###                                       #*#****%                     
+            %+=+###                                      %+*#****#                     
+            *=+*##*%                                     *+*#*++*#                     
+            +=++##*#%                                   *+*##+++**%                    
+            +=+++#**#                                   ++*#*++++*#                    
+            ++++++#**%                                 *+**#+++++*#@                   
+            ++++++#**#%                               #++**#+++++**%                   
+            ++++++#***#                               +=+*##++++++*%                   
+            ++++++*#**#%                             #=+**##++++++*#                   
+            +++++++#***#%                            +=+**#*++++++*#                   
+            +++++++##***#                           #+=+**#*++++++*#                   
+            ++++++++#****%                          #++***#*++++++*#                   
+            ++++++++#*****%                         #=+***#*++++++*#                   
+            +=++++++*#****#                         *=+***#*++++++*#                   
+            +=+++++++#*****#                        *=******++++++*#                   
+            *==++++++##*****#                       *+*****#++++++*#                   
+            *==++++++##*****#                       *+*****#*+++++*#                   
+             +=++++++#*******%            @         *+******#++++**#                   
+             *==++++*#*******#        %%##%%%%%     *+******#*+++*#%                   
+             #==++++*#*******#%    %#***######%%%@ @*+******#*+++*#%                   
+              +=++++#********#% %#***##%%%%%%%%%%%%@%*******#*++**#                    
+              +==++*##*******#% %###%%%%@@%%@@@%%%%%%#******##*+**#                    
+              +===++##*******#%%%%%%@@%%#######%@@%%%%%###***#*+**#                    
+               *==++*#****#%%%%%@%@%%###%%%%%%####%%%@%%%%%###****%                    
+                +===+*#*#%####%%%%###%%%%%%%%%%%%%%##%%%%###%#***%                     
+                *===+*%%%###%%####%%%%%%%##**#%%%%%%%#####%##%%##%                     
+                  +=*%%%%%%%####%%%%%%#********##%%%%%%####%%%%%@                      
+                  %*%%@@#%%###%%%%%%##****+++**#**#%%%%%%%%%%%%@@@@ %%@                
+              %%%   %%%#%##%%#%%%%***%#**++++**##****%%%###%%%%#%%%%%#%%               
+             %###%%%%%%%##%%#%%%****#%#***++***#%#*#**#%%%##%#%%%%#####%%              
+            %***#####%%###%%%%#****#%##******#%#%%###***#%%%%##%@%######%              
+            #**######%###%%%%###*#####%#*****#@#%%##%%####%%%@%#%%######%@             
+            ###%####%##%%@@%##%%#**###%%#****#%#%#%*#%#**%%%#%%%##%##%%%%              
+                  %%##%%%##%##%#***#*#%%##***##%%####%##*##***%%%#%@@                  
+                  %###%%#*#**#%###%%##%%%%***###@%%%%%%#@#%***#%%###%%%%%@             
+          %##%%%%%####%%**#*#%%%%%%@##%%@%#*###%%%%####%@%%#**#%%%####%%%%@            
+         %#%#@%%%%####%%##%*++*****%#**###*******#**##*+*@@%####%%%%##%%%%%@           
+        %############%%%%##+++#%%%#****************%@%#++%#%%%%%%%%%%@@%%%%%@          
+         %%#%%%%#%%%@%##%#@*++####*+**************+#%%*++%%#@%%%%######@@@@            
+           *++####**#%%%%%%#+++++++*******##*****##*++++*###%###%#***###%              
+          %**#+++++*#%#####%#***###******************#####*###*#%#**##%##%%            
+        #++**##*++**####*+*********************************#####%#****##**#@           
+       #+*++*#*+++*#####*==++************#%#%#*************#%@@@@#***##****%@          
+      #+*+++*#*+++*%####*--=+**********#######%#***********#%###%#***%*****#@          
+      ***+++*#*++*##*##%#+=++***********#######**********##%%%%%%#***%*****#%@         
+    **#*++++***++*##%#####*++++**********#%%##*********#####**##%#***#%***#%##%        
+ #*===+**++*#*++*##****%#####*+++******************###%%#******#%##***####%****#@      
+#*=====+#**#****##*****%@%%#######%###********##%%%#####*******#%@@%%%%%#*#*****#%@    
+         ###**#%#*****#%%%%@@@@%%%#%###%#*****#%%%%@@%%#*******#%@@@@@@#*********###%  
+        +==+*###******#@%%%%%%%@@%%@@%%%#*****#@@@@@@@%#*******##@@@@@@###*#########%@ 
+       *=-=***#*******#%%%%%%%%@@%%%%##*******##%@@%%@#********##@@@@@@######%@@@@@    
+      +=--+**#+-=*****%%%%%%%%%@@%##************##@@@@#********##@@@@@@@#######@   
+
+|#
 

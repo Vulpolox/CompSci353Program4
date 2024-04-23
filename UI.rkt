@@ -5,6 +5,7 @@
 (provide make-choice)
 (provide show-dialogue)
 (provide valid?)
+(provide c-read-line)
 
 ; --- MENU STUFF -----------------------------------------------------------------------------------------
 ; 
@@ -13,6 +14,9 @@
         [list "Thing 1" "A" (lambda () "manipulate state")]
         [list "Thing 2" "B" (lambda () "manipulate state")]
         ))
+
+(define (c-read-line)
+  (string-trim (read-line)))
 
 (define (get-menu-name menu-object)
   (first menu-object))
@@ -31,8 +35,11 @@
 (define (get-valid-choices menu-object)
   (_get-at-index (cdr menu-object) 1))
 
+;(define (valid? choice menu-object)
+;  (not (equal? (member choice (get-valid-choices menu-object)) #f)))
+
 (define (valid? choice menu-object)
-  (not (equal? (member choice (get-valid-choices menu-object)) #f)))
+  (list? (member choice (get-valid-choices menu-object))))
 
 (define (get-menu-func valid-choice menu-object)
   (define target (filter [lambda (menu-item) (equal? (second menu-item) valid-choice)]
@@ -43,7 +50,7 @@
   (begin
     (display-menu menu-object)
     (display "   >>> ")
-    (define unvalidated-choice (string-upcase (read-line)))
+    (define unvalidated-choice (string-trim (string-upcase (read-line))))
 
     (cond
       

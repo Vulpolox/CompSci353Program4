@@ -109,24 +109,22 @@
         [list "Check your surroundings" "S" (lambda (game-state)
                                               {begin
                                                 [show-dialogue "You take a look around. There are four blocked paths in each of the cardinal directions but no way to advance.\nOut of the corner of your eye, you spot a strange device"]
-                                                [define state-1 (add-menu-item game-state "main-menu" "Pick up the strange device" "P" (lambda (game-state)
+                                                [define state-1 (add-menu-item game-state "main-menu" "Investigate the strange device" "P" (lambda (game-state)
                                                                                                                                 {begin
                                                                                                                                   [show-dialogue "Upon closer examination of the device, you find a button. Upon pressing it, a golden coin drops to the ground"]
-                                                                                                                                  [define state-1 (pick-up-item "COIN GENERATOR "
-                                                                                                                                                                  game-state)]
-                                                                                                                                  [define state-2 (remove-menu-item "main-menu" "P" state-1)]
-                                                                                                                                  [define state-3 (increment-click-amount 1 state-2)]
-                                                                                                                                  [define state-4 (add-menu-item state-3 "main-menu" "Press the coin button" "P" (lambda (game-state)
+                                                                                                                                  [define state-1 (remove-menu-item "main-menu" "P" game-state)]
+                                                                                                                                  [define state-2 (increment-click-amount 1 state-1)]
+                                                                                                                                  [define state-3 (add-menu-item state-2 "main-menu" "Press the coin button" "P" (lambda (game-state)
                                                                                                                                                                                                               {begin
                                                                                                                                                                                                                 [define state-1 (click game-state)]
                                                                                                                                                                                                                 [game-loop state-1]
                                                                                                                                                                                                                 }))]
-                                                                                                                                  [define state-5 (add-menu-item state-4 "main-menu" "Upgrade coin generator" "U" (lambda (game-state)
+                                                                                                                                  [define state-4 (add-menu-item state-3 "main-menu" "Upgrade coin generator" "U" (lambda (game-state)
                                                                                                                                                                                                                     {begin
                                                                                                                                                                                                                       [define state-1 (set-current-menu "upgrade-menu" game-state)]
                                                                                                                                                                                                                       [game-loop state-1]
                                                                                                                                                                                                                       }))]
-                                                                                                                                  [game-loop state-5]
+                                                                                                                                  [game-loop state-4]
                                                                                                                                 }))]
                                                 [define state-2 (remove-menu-item "main-menu" "S" state-1)]
                                                 [game-loop state-2]
@@ -154,6 +152,7 @@
                                           [define state-1 (set-current-menu "main-menu" game-state)]
                                           [game-loop state-1]
                                           })]
+        [list "Upgrade 1 (1x UPGRADE MODULE V1)" (lambda (game-state) {begin "todo"})]
         ))
 
 ; --- NORTH PATH MENU -------------------------------------------------------------------------------
@@ -222,8 +221,11 @@
                                                                                                                                         [game-loop game-state]]
                                                                                                                                        )}
                                                                                                                                    ))]
-                                                [define state-3 (remove-menu-item "north-path" "S" state-2)]
-                                                [game-loop state-3]
+                                                [define state-3 (add-menu-item state-2 "north-path" "Drop item" "W" (lambda (game-state) {begin
+                                                                                                                              [define state-1 (drop-item game-state)]
+                                                                                                                              [game-loop state-1]}))]
+                                                [define state-4 (remove-menu-item "north-path" "S" state-3)]
+                                                [game-loop state-4]
                                                 })]
         [list "Go back to main area" "R" (lambda (game-state)
                                            {begin
@@ -372,12 +374,14 @@
                                                                                                                                                                
                                                                                                                                                                  
 
-                                                                                                                                                              
-
+                                                                                                                               
                                                                                                                                                               
                                                                                                                                                                
-                                                                                                                                                                 
-                                                [game-loop state-4]
+
+                                                [define state-5 (add-menu-item state-4 "south-path" "Drop item" "W" (lambda (game-state) {begin
+                                                                                                                           [define state-1 (drop-item game-state)]
+                                                                                                                           [game-loop state-1]}))]
+                                                [game-loop state-5]
                                                 })]
                                                   
                                                               
@@ -401,16 +405,21 @@
                                                })]
         ))
 
+; --- WEST PATH MENU -----------------------------------------------------------------------------------------
+
 (define west-path
   (list "west-path"
         [list "Check your surroundings" "S" (lambda (game-state) {begin
-                                                                   [show-dialogue "todo area description"]
+                                                                   [show-dialogue "The area you enter is nothing like what the rest of the cave system has been like"]
+                                                                   [show-dialogue "It looks less like a cave and more like a dungeon"]
+                                                                   [show-dialogue "Turning the corner, you see a giant monster guarding what looks like an upgrade module for the coin generator\nYou also see a passage with a massive sign above it reading \"ENTER LABYRINTH\""]
                                                                    [define state-1 (add-menu-item game-state "west-path" "Fight the monster" "F" (lambda (game-state) {begin
                                                                                                                                                                         (cond
                                                                                                                                                                           
                                                                                                                                                                           [(not (item-in-inventory? "SWORD " game-state))
                                                                                                                                                                            (let* ([state-1 (set-coin-count 0 game-state)])
-                                                                                                                                                                             [show-dialogue "The monster beats you to a pulp and steals all of your coins.  Bummer!"]
+                                                                                                                                                                             [show-dialogue "You harmlessly punch the monster. \"Take that!\""]
+                                                                                                                                                                             [show-dialogue "The monster, unfazed, beats you to a pulp and steals all of your coins"]
                                                                                                                                                                              [show-dialogue (format "-~a coins" (get-coin-count game-state))]
                                                                                                                                                                              [game-loop state-1])]
 
@@ -418,9 +427,12 @@
                                                                                                                                                                            (let* ([state-1 (remove-menu-item "west-path" "F" game-state)])
                                                                                                                                                                              "todo")]
                                                                                                                                                                           )}))]
-                                                                   [define state-2 (add-menu-item game-state "west-path" "Enter the labyrinth" "A" (lambda (game-state) "todo"))]
+                                                                   [define state-2 (add-menu-item state-1 "west-path" "Enter the labyrinth" "A" (lambda (game-state) "todo"))]
                                                                    [define state-3 (remove-menu-item "west-path" "S" state-2)]
-                                                                   [game-loop state-3]
+                                                                   [define state-4 (add-menu-item state-3 "west-path" "Drop item" "W" (lambda (game-state) {begin
+                                                                                                                                                                [define state-1 (drop-item game-state)]
+                                                                                                                                                                [game-loop state-1]}))]
+                                                                   [game-loop state-4]
                                                                    })]
                                                                    
         [list "Go back to main area" "R" (lambda (game-state) {begin
@@ -435,7 +447,7 @@
                                                [displayln "  ---"]
                                                [displayln "   CURRENT LOCATION: WEST PATH"]
                                                [displayln "  ---"]
-                                               [displayln "   BRIEF DESCRIPTION: todo"]
+                                               [displayln "   BRIEF DESCRIPTION: An odd area that seems to be the entrance to a labyrinth"]
                                                [show-dialogue ""]
                                                [game-loop game-state]
                                                })]

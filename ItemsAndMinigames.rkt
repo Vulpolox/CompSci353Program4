@@ -16,8 +16,9 @@
                         [list "KEY " #f #f #f]
                         [list "UPGRADE MODULE V1 " #f #f #f]
                         [list "UPGRADE MODULE V2 " #f #f #f]
+                        [list "UPGRADE MODULE V3 " #f #f #f]
                         [list "UPGRADE MODULE R " #f #f #f]
-                        [list "MIMIC KEY " #f #t #f]
+                        [list "MIMIC KEY " #f #f #f]
                         [list "LANTERN " #f #f #f]
                         [list "SWORD " #f #f #f]
                         ))
@@ -35,7 +36,7 @@
 
   (define (loop correct-number [guesses-left 5])               ; the gameplay loop of the guessing game
     (display (format "Guess a number between 1 and ~a.  Guesses left: ~a~n   >>>" range (add1 guesses-left)))
-    (define guess (read-line))
+    (define guess (c-read-line))
 
     (cond
       [(< guesses-left 0)                                      ; lose condition #1
@@ -107,7 +108,7 @@
   (show-dialogue random-fact)
   (clear-console)
   (display (format "What was number #~a?~n   >>>" (add1 index-of-num-to-memorize)))
-  (define answer (read-line))
+  (define answer (c-read-line))
 
   (if [equal? answer num-to-memorize]
       [begin (displayln "You win!\n------------------------------------------") #t]
