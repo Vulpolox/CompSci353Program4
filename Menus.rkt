@@ -410,7 +410,7 @@
         [list "Go back to main area" "R" (lambda (game-state) {lambda-extractor game-state "logic for returning to main-menu"})]
         [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
                                                                 #:current-location "WEST PATH"
-                                                                #:description "The entrance to a labyrinth"})]
+                                                                #:description "A room at the end of an absurdly long hallway with the entrance to a labyrinth at its back"})]
         [list "Test" "T" (lambda (game-state) [trap-game "test" game-state])]
         ))
 
