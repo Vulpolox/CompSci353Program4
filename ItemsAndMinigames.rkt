@@ -7,6 +7,7 @@
 (provide inventory-list)
 (provide number-guessing-game)
 (provide number-memorization-game)
+(provide trap-mini-game)
 (provide mimic-game-1)
 
 ; --- ITEMS / INVENTORY LIST --------------------------------------------------------------
@@ -17,7 +18,9 @@
                         [list "UPGRADE MODULE V1 " #f #f #f]
                         [list "UPGRADE MODULE V2 " #f #f #f]
                         [list "UPGRADE MODULE V3 " #f #f #f]
+                        [list "UPGRADE MODULE V4 " #f #f #f]
                         [list "UPGRADE MODULE R " #f #f #f]
+                        [list "UPGRADE MODULE R2 " #f #t #f]
                         [list "MIMIC KEY " #f #f #f]
                         [list "LANTERN " #f #f #f]
                         [list "SWORD " #f #f #f]
@@ -99,7 +102,7 @@
         ))
 
   (displayln "------------------------------------------")
-  (show-dialogue "Take note of the following information:")
+  (show-dialogue "Memorize the following information:")
   (clear-console)
   (show-dialogue (format "Number #1: ~a" num-1))
   (clear-console)
@@ -114,8 +117,56 @@
       [begin (displayln "You win!\n------------------------------------------") #t]
       [begin (displayln (format "Number was ~a; You lose :(~n------------------------------------------" num-to-memorize)) #f]
       ))
-        
+
+; --- TRAP MINI GAME -------------------------------------------------------------------------------------------------
+
+
+; pre  -- takes a string message and a game-state object
+; post -- displays the string message and then has the player
+;         play a number guessing game until either they guess the correct
+;         number or run out of coins; returns the ending amount of coins
+; signature: (string, game-state) -> int
+(define (trap-mini-game trap-message game-state)
+  (define current-coins (get-coin-count game-state))
+  (show-dialogue trap-message)
+
+  (define (trap-game-loop current-coins [range 5])
+    (define correct-number (add1 (random range)))     ; random number between 1 and range
+    (define coin-lose-amount (random 2000))           ; the amount of coins you lose if you guess incorrectly
+
+    (cond
+      [(< current-coins 0)                            ; lose condition: you're in debt; return 0
+       (show-dialogue "You have run out of coins and succumb to the trap") 
+       0]                     
       
+      [else                                           ; otherwise, get a guess from the player and compare it against different cases
+       (display (format "Guess the correct number between 1 and ~a to escape the trap~n   >>>" range))
+       (let ([guess (c-read-line)])
+
+         (cond
+           
+           [(or (boolean? (string->number guess))     ; guess isn't a number or is out of range; punish the player for bad input
+                (> (string->number guess) range)
+                (< (string->number guess) 1))
+            (show-dialogue "Your guess was so bad that you triggered another trap; you lost double coins as well")
+            (show-dialogue (format "-~a coins; you now have ~a coins" (* coin-lose-amount 2) (- current-coins (* 2 coin-lose-amount))))
+            (trap-game-loop [- current-coins (* 2 coin-lose-amount)] [min (+ 5 range) 15])]
+
+           [(= (string->number guess) correct-number) ; win condition (guess == correct-number); return current-coins
+            (show-dialogue "You escape the trap!")
+            current-coins]
+
+           [else                                      ; player doesn't guess correctly; call the game loop with a decreased number of coins
+            (show-dialogue (format "You struggle while trying your best to get out of the trap but fail~n-~a coins; you now have ~a coins~nCorrect number: ~a" coin-lose-amount (- current-coins coin-lose-amount) correct-number))
+            (trap-game-loop (- current-coins coin-lose-amount) range)]
+           
+           ))]
+      ))
+
+  (trap-game-loop current-coins))
+       
+       
+       
   
   
   
