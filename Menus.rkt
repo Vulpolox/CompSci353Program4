@@ -411,7 +411,7 @@
         [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
                                                                 #:current-location "WEST PATH"
                                                                 #:description "A room at the end of an absurdly long hallway with the entrance to a labyrinth at its back"})]
-        [list "Test" "T" (lambda (game-state) [trap-game "test" game-state])]
+        [list "Test" "T" (lambda (game-state) [trap-game "test" game-state "west-path"])]
         ))
 
 ; menu-list to provide for use in the starting game-state

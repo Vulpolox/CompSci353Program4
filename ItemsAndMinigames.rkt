@@ -121,12 +121,12 @@
 ; --- TRAP MINI GAME -------------------------------------------------------------------------------------------------
 
 
-; pre  -- takes a string message and a game-state object
+; pre  -- takes a string message and a game-state object, and a menu-name
 ; post -- displays the string message and then has the player
 ;         play a number guessing game until either they guess the correct
-;         number or run out of coins; returns the ending amount of coins
-; signature: (string, game-state) -> int
-(define (trap-game trap-message game-state)
+;         number or run out of coins; changes the game-states current-menu if they lose
+; signature: (string, game-state, menu-name) -> game-loop call
+(define (trap-game trap-message game-state lose-location)
   (define current-coins (get-coin-count game-state))
   (show-dialogue trap-message)
 
@@ -135,9 +135,12 @@
     (define coin-lose-amount (random 2000))           ; the amount of coins you lose if you guess incorrectly
 
     (cond
-      [(< current-coins 0)                            ; lose condition: you're in debt; return 0
-       (show-dialogue "You have run out of coins and succumb to the trap") 
-       0]                     
+      [(< current-coins 0)                            ; lose condition: you're in debt; send player to lose-location
+       (show-dialogue "You have run out of coins. You pass out")
+       (show-dialogue (format "When you awaken, you find yourself in ~a" lose-location))
+       (let* ([state-1 (set-coin-count 0 game-state)]
+              [state-2 (set-current-menu lose-location game-state)])
+         [game-loop state-2])]
       
       [else                                           ; otherwise, get a guess from the player and compare it against different cases
        (display (format "Guess the correct number between 1 and ~a to escape the trap~n   >>>" range))
@@ -148,17 +151,18 @@
            [(or (boolean? (string->number guess))     ; guess isn't a number or is out of range; punish the player for bad input
                 (> (string->number guess) range)
                 (< (string->number guess) 1))
-            (show-dialogue "Your guess was so bad that you triggered another trap; you lost double coins as well")
+            (show-dialogue "Your guess was so bad that you triggered another trap, making your escape harder; you lost double coins as well")
             (show-dialogue (format "-~a coins; you now have ~a coins" (* coin-lose-amount 2) (- current-coins (* 2 coin-lose-amount))))
-            (trap-game-loop [- current-coins (* 2 coin-lose-amount)] [min (+ 5 range) 15])]
+            (trap-game-loop [- current-coins (* 2 coin-lose-amount)] [min (+ 5 range) 25])]
 
            [(= (string->number guess) correct-number) ; win condition (guess == correct-number); return current-coins
             (show-dialogue "You escape the trap!")
-            current-coins]
+            (let ([state-1 (set-coin-count current-coins game-state)])
+              [game-loop state-1])]
 
            [else                                      ; player doesn't guess correctly; call the game loop with a decreased number of coins
             (show-dialogue (format "You struggle while trying your best to get out of the trap but fail~n-~a coins; you now have ~a coins~nCorrect number: ~a" coin-lose-amount (- current-coins coin-lose-amount) correct-number))
-            (trap-game-loop (- current-coins coin-lose-amount) range)]
+            (trap-game-loop (- current-coins coin-lose-amount) (max 5 (- range 1)))]
            
            ))]
       ))
