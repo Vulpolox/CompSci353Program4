@@ -7,7 +7,7 @@
 (provide inventory-list)
 (provide number-guessing-game)
 (provide number-memorization-game)
-(provide trap-mini-game)
+(provide trap-game)
 (provide mimic-game-1)
 
 ; --- ITEMS / INVENTORY LIST --------------------------------------------------------------
@@ -126,7 +126,7 @@
 ;         play a number guessing game until either they guess the correct
 ;         number or run out of coins; returns the ending amount of coins
 ; signature: (string, game-state) -> int
-(define (trap-mini-game trap-message game-state)
+(define (trap-game trap-message game-state)
   (define current-coins (get-coin-count game-state))
   (show-dialogue trap-message)
 
