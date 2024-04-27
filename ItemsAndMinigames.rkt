@@ -4,27 +4,10 @@
 (require "UI.rkt")
 (require "Format.rkt")
 
-(provide inventory-list)
 (provide number-guessing-game)
 (provide number-memorization-game)
 (provide trap-game)
 (provide mimic-game-1)
-
-; --- ITEMS / INVENTORY LIST --------------------------------------------------------------
-
-(define inventory-list (list
-                        [list "COIN GENERATOR " #f #f #f]
-                        [list "KEY " #f #f #f]
-                        [list "UPGRADE MODULE V1 " #f #f #f]
-                        [list "UPGRADE MODULE V2 " #f #f #f]
-                        [list "UPGRADE MODULE V3 " #f #f #f]
-                        [list "UPGRADE MODULE V4 " #f #f #f]
-                        [list "UPGRADE MODULE R " #f #f #f]
-                        [list "UPGRADE MODULE R2 " #f #t #f]
-                        [list "MIMIC KEY " #f #f #f]
-                        [list "LANTERN " #f #f #f]
-                        [list "SWORD " #f #f #f]
-                        ))
 
 ; --- NUMBER GUESSING MINIGAME ---------------------------------------------------------------------------
 
@@ -130,7 +113,7 @@
   (define current-coins (get-coin-count game-state))
   (show-dialogue trap-message)
 
-  (define (trap-game-loop current-coins [range 5])
+  (define (trap-game-loop current-coins [range 10])
     (define correct-number (add1 (random range)))     ; random number between 1 and range
     (define coin-lose-amount (random 2000))           ; the amount of coins you lose if you guess incorrectly
 

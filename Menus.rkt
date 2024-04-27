@@ -403,8 +403,8 @@
                                                                    [define state-2 (add-menu-item state-1 "west-path" "Enter the labyrinth" "A" (lambda (game-state) {lambda-extractor game-state "logic for entering labyrinth"}))]
                                                                    [define state-3 (remove-menu-item "west-path" "S" state-2)]
                                                                    [define state-4 (add-menu-item state-3 "west-path" "Drop item" "W" (lambda (game-state) {lambda-extractor game-state "logic for dropping items"}))]
-                                                                   [define state-5 (add-menu-item state-4 "west-path" "Look at labyrinth map" "M" (lambda (game-state) {lambda-extractor game-state "logic for looking at labyrinth map"}))]
-                                                                   [game-loop state-5]
+                                                                   ;[define state-5 (add-menu-item state-4 "west-path" "Look at labyrinth map" "M" (lambda (game-state) {lambda-extractor game-state "logic for looking at labyrinth map"}))]
+                                                                   [game-loop state-4]
                                                                    })]
                                                                    
         [list "Go back to main area" "R" (lambda (game-state) {lambda-extractor game-state "logic for returning to main-menu"})]
@@ -414,8 +414,93 @@
         [list "Test" "T" (lambda (game-state) [trap-game "test" game-state "west-path"])]
         ))
 
+; --- LABYRINTH --------------------------------------------------------------------------
+
+
+(define labyrinth-1
+  (list "labyrinth-1"
+        [list "Go north" "A" (lambda (game-state) {trap-game "You bump into a wall and activate a pressure plate triggering a boulder to fall on you" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "labyrinth-2" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "You bump into a wall, triggering a trap door to open underneath you. You to fall into a quicksand pit" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "west-path" game-state)]
+                                                   [show-dialogue "You escape the labyrinth"]
+                                                   [game-loop state-1]})]
+        ))
+
+(define labyrinth-2
+  (list "labyrinth-2"
+        [list "Go north" "A" (lambda (game-state) {trap-game "You bump into a wall.  The wall starts trying to eat you" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "You reach a dead end.  On your way back, you step on a bear trap" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-3" game-state)]
+                                                    [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "labyrinth-1" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define labyrinth-3
+  (list "labyrinth-3"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-2" game-state)]
+                                                    [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-4" game-state)]
+                                                    [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "A giant spider snatches you and wraps you in their web" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {trap-game "A slight nudge against the wall activates a magical glyph, casting a web of ensnaring tendrils that bind you in place" game-state "west-path"})]
+        ))
+
+(define labyrinth-4
+  (list "labyrinth-4"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-2" game-state)]
+                                                    [show-dialogue "You accidentally walk into a portal and are sent to a previous part of the labyrinth"]
+                                                    [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "trap dialogue" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-5" game-state)]
+                                                    [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-3" game-state)]
+                                                    [game-loop state-1]})]
+        ))
+
+(define labyrinth-5
+  (list "labyrinth-5"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-4" game-state)]
+                                                    [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-1" game-state)]
+                                                    [show-dialogue "You accidentally walk into a portal and are sent to a previous part of the labyrinth"]
+                                                    [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "treasure-room" game-state)]
+                                                    [show-dialogue "You enter the treasure room"]
+                                                    [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                    [define state-1 (set-current-menu "labyrinth-2" game-state)]
+                                                    [show-dialogue "You accidentally walk into a portal and are sent to a previous part of the labyrinth"]
+                                                    [game-loop state-1]})]
+        ))
+
+(define treasure-room
+  (list "treasure-room"
+        [list "Open the treasure!" "O" (lambda (game-state) {lambda-extractor game-state "logic for finding out you have to play another mimic game"})]
+        [list "Head back into the labyrinth" "A" (lambda (game-state) {begin
+                                                                        [define state-1 (set-current-menu "labyrinth-5" game-state)]
+                                                                        [show-dialogue "You head back into the labyrinth"]
+                                                                        [game-loop state-1]})]
+        ))
+        
+
 ; menu-list to provide for use in the starting game-state
-(define menu-list (list title main-menu upgrade-menu north-path south-path west-path))
+(define menu-list (list title main-menu upgrade-menu north-path south-path west-path
+                        labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room))
 
 
 ; pre  -- takes a game-state object and a string key (and possibly some keyword arguments)
@@ -479,7 +564,7 @@
     ; the lambda body of the add-menu call that adds an option for looking at the labyrinth map
     [(equal? key "logic for looking at labyrinth map")
 
-     [show-dialogue "Next to the labyrinth entrance, there is what appears to be some sort of map engraved into the wall"]
+     [show-dialogue "Using the light of the lantern to see the walls, there is what appears to be some sort of map engraved on them"]
      [show-dialogue
 "++++++++++++++++++++++++++++++
 ++++++++++++++++++++++++++++++
@@ -498,6 +583,50 @@
 +++++++++++++++++##+++++++++++
 +++++++++++++++++##+++++++++++"]
      [game-loop game-state]]
+
+    ; the lambda body for handling the logic for entering the labyrinth
+    [(equal? key "logic for entering labyrinth")
+
+     (let* ([state-1 (set-current-menu "labyrinth-1" game-state)])
+       [show-dialogue "You cautiously enter the labyrinth"]
+       [show-dialogue "Inside, it is too dark to see anything. Looks like it is going to be trial and error from here on out"]
+       [game-loop state-1])]
+
+    ; the lambda body of the "open the chests!" option from the treasure room of the labyrinth
+    [(equal? key "logic for finding out you have to play another mimic game")
+
+     (let* ([state-1 (remove-menu-item "treasure-room" "O" game-state)]
+            [state-2 (add-menu-item state-1 "treasure-room" "Play mimic game (1 mimic key)" "O" (lambda (game-state) {lambda-extractor game-state "logic for playing second mimic game"}))])
+       [show-dialogue "You greedily try to open the chests to no avail.  It is only after this that you notice the sign. \"Play Mimic Game 2 Electric Boogaloo, Only One Mimic Key!\""]
+       [show-dialogue "\"#%&*$$#!!!\" Time to head back to south-path to get another mimic key"]
+       [game-loop state-2])]
+
+    ; the lambda body for the logic of the second mimic game
+    [(equal? key "logic for playing second mimic game")
+
+     (cond
+       [(not (item-in-inventory? "MIMIC KEY " game-state))
+        [show-dialogue "You need a mimic key from the memorization game to play"]
+        [game-loop game-state]]
+
+       [else
+        (let ([win? (mimic-game-1)]
+              [state-1 (use-item "MIMIC KEY " game-state)])
+          (cond
+            [win?
+             (let* ([state-2 (remove-menu-item "treasure-room" "O" state-1)]
+                    [state-3 (add-coins 10000 state-2)]
+                    [state-4 (add-menu-item state-3 "treasure-room" "Use lantern to look at wall glyphs" "M" (lambda (game-state) {lambda-extractor game-state "logic for looking at labyrinth map"}))])
+               [show-dialogue "Within the chests, you found 10,000 coins and a lantern!"]
+               [game-loop (pick-up-item "LANTERN " state-4)])]
+
+            [else
+             [show-dialogue "The mimic feels bad for you and gives you a 5,000 coin consolation prize"]
+             [game-loop (add-coins 5000 state-1)]]
+            ))]
+       )]
+
+          
 
 ; --- MISCELLANEOUS ---
 
