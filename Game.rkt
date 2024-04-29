@@ -12,8 +12,8 @@
                         [list "UPGRADE MODULE V3 " #f #f #f]
                         [list "UPGRADE MODULE V4 " #f #f #f]
                         [list "UPGRADE MODULE R " #f #f #f]
-                        [list "UPGRADE MODULE R2 " #f #t #f]
-                        [list "MIMIC KEY " #f #t #f]
+                        [list "UPGRADE MODULE R2 " #f #f #f]
+                        [list "MIMIC KEY " #f #f #f]
                         [list "LANTERN " #f #f #f]
                         [list "SWORD " #f #f #f]
                         ))
@@ -21,6 +21,6 @@
 (define starting-game-state (list "title"
                                   menu-list
                                   inventory-list
-                                  1000000000 0))
+                                  0 0))
 
 (game-loop starting-game-state)

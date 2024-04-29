@@ -210,7 +210,14 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (remove-menu-item "main-menu" "P" game-state)]
+                                                                                      [state-2 (add-menu-item state-1 "main-menu" "Press the coin button" "P" (lambda (game-state) {lambda-extractor game-state "logic for upgrade module r2"}))]
+                                                                                      [state-3 (use-item "UPGRADE MODULE R2 " state-2)]
+                                                                                      [state-4 (remove-menu-item "upgrade-menu" "F" state-3)])
+                                                                                 [show-dialogue "You insert the strange upgrade module into the coin generator"]
+                                                                                 [show-dialogue "On the screen, you read: \"R MODE BOOSTED\""]
+                                                                                 [show-dialogue "You will now have a 40% chance of receiving 0.2x your total coins\nper press of the button; this bonus caps at 30,000 coins"]
+                                                                                 [game-loop state-4])])})]
         ))
 
 ; --- NORTH PATH MENU -------------------------------------------------------------------------------
@@ -359,7 +366,7 @@
 
                                                                                                                                                               [(item-in-inventory? "LANTERN " game-state)
                                                                                                                                                                (let* ([state-1 (use-item "LANTERN " game-state)]
-                                                                                                                                                                      [state-2 (add-menu-item state-1 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for adding secret passage found by lantern"}))])
+                                                                                                                                                                      [state-2 (add-menu-item state-1 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering secret passage found by lantern"}))])
                                                                                                                                                                  [show-dialogue "With the help of the lantern, you find a secret passage!"]
                                                                                                                                                                  [game-loop state-2])]
 
@@ -411,7 +418,6 @@
         [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
                                                                 #:current-location "WEST PATH"
                                                                 #:description "A room at the end of an absurdly long hallway with the entrance to a labyrinth at its back"})]
-        [list "Test" "T" (lambda (game-state) [trap-game "test" game-state "west-path"])]
         ))
 
 ; --- LABYRINTH --------------------------------------------------------------------------
@@ -460,7 +466,7 @@
                                                     [define state-1 (set-current-menu "labyrinth-2" game-state)]
                                                     [show-dialogue "You accidentally walk into a portal and are sent to a previous part of the labyrinth"]
                                                     [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) {trap-game "trap dialogue" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "You step on a magical glyph and are frozen solid" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                     [define state-1 (set-current-menu "labyrinth-5" game-state)]
                                                     [game-loop state-1]})]
@@ -496,11 +502,20 @@
                                                                         [show-dialogue "You head back into the labyrinth"]
                                                                         [game-loop state-1]})]
         ))
+
+; --- SECRET PASSAGE --------------------------------------------------------------------------
+
+(define secret-passage
+  (list "secret-passage"
+        [list "Pick up the sword" "A" (lambda (game-state) {lambda-extractor game-state "logic for picking up the sword"})]
+        [list "Read the message" "B" (lambda (game-state) {lambda-extractor game-state "logic for reading the message"})]
+        [list "Go back" "R" (lambda (game-state) {lambda-extractor game-state "logic for leaving secret passage"})]
+        ))
         
 
 ; menu-list to provide for use in the starting game-state
 (define menu-list (list title main-menu upgrade-menu north-path south-path west-path
-                        labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room))
+                        labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room secret-passage))
 
 
 ; pre  -- takes a game-state object and a string key (and possibly some keyword arguments)
@@ -532,11 +547,64 @@
           [game-loop state-1]]
          ))]
 
+    ; the lambda body of the add-menu-item call when using UPGRADE MODULE R2 from the upgrade-menu
+    [(equal? key "logic for upgrade module r2")
+
+     (let* ([rand-num (random 10)]
+            [state-1 (click game-state)])
+       (cond
+         [(>= rand-num 6)
+          (let* ([bonus (floor (/ (get-coin-count game-state) 5))]
+                 [adjusted-bonus (min bonus 30000)]
+                 [state-2 (add-coins adjusted-bonus state-1)])
+            [show-dialogue (format "You recieved ~a bonus coins; you now have ~a coins" adjusted-bonus (get-coin-count state-2))]
+            [game-loop state-2])]
+
+         [else
+          [game-loop state-1]]
+         ))]
+
 ; --- SOUTH-PATH ---
     
-    ; the lambda body of the add-menu-item call for finding the secret passage using LANTERN in south-path
-    [(equal? key "logic for adding secret passage found by lantern")
-     "TODO"]
+    ; the lambda body for entering the secret passage
+    [(equal? key "logic for entering secret passage found by lantern")
+
+     (let* ([state-1 (set-current-menu "secret-passage" game-state)])
+       [show-dialogue "You enter the secret passage"]
+       [show-dialogue "Looking around, you see a sword and a message engraved into the wall"]
+       [game-loop state-1])]
+
+; --- SECRET-PASSAGE ---
+    
+    ; the lambda body for picking up the sword
+    [(equal? key "logic for picking up the sword")
+
+     (let* ([state-1 (pick-up-item "SWORD " game-state)]
+            [state-2 (remove-menu-item "secret-passage" "A" state-1)])
+       [game-loop state-2])]
+
+    ; the lambda body for reading the message for the first time in the secret passage
+    [(equal? key "logic for reading the message")
+     
+     (let* ([state-1 (remove-menu-item "secret-passage" "B" game-state)]
+            [state-2 (add-menu-item state-1 "secret-passage" "Read the message" "B" (lambda (game-state) {lambda-extractor game-state "logic for rereading message"}))]
+            [state-3 (add-menu-item state-2 "treasure-room" "Look for the secret" "S" (lambda (game-state) {lambda-extractor game-state "logic for looking for secret in treasure room"}))])
+       [show-dialogue "\"A secret item can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
+       [game-loop state-3]
+       )]
+
+    ; the lambda body for reading the messsage any subsequent time in the secret passage
+    [(equal? key "logic for rereading message")
+     
+     [show-dialogue "\"A secret item can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
+     [game-loop game-state]]
+
+    ; the lambda body for leaving the secret passage
+    [(equal? key "logic for leaving secret passage")
+
+     (let* ([state-1 (set-current-menu "south-path" game-state)])
+       [show-dialogue "You leave the secret passage"]
+       [game-loop state-1])]
 
 ; --- WEST PATH ---
 
@@ -544,6 +612,16 @@
     [(equal? key "logic for fighting the monster")
 
      (cond                                                                                                                                                                  
+       [(and (item-in-inventory? "LANTERN " game-state) (not (item-in-inventory? "SWORD " game-state)))
+        (let* ([labyrinth-loc-list (list "labyrinth-1" "labyrinth-2" "labyrinth-3" "labyrinth-4" "labyrinth-5")]
+               [random-location (list-ref labyrinth-loc-list (random (length labyrinth-loc-list)))]
+               [state-1 (add-menu-item game-state random-location "Pick up the lantern" "P" (lambda (game-state) {lambda-extractor game-state "logic for picking up the thrown lantern"}))]
+               [state-2 (use-item "LANTERN " state-1)])
+          (show-dialogue "You bravely approach the monster with your new lantern")
+          (show-dialogue "The monster, unimpressed, grabs your lantern and throws it to a random location in the labyrinth")
+          (game-loop state-2)
+          )]
+       
        [(not (item-in-inventory? "SWORD " game-state))
         (let* ([coin-amount (random 2000)]
                [state-1 (deduct-coins coin-amount game-state)])
@@ -561,10 +639,19 @@
           [game-loop (pick-up-item "UPGRADE MODULE V3 " state-1)])]
        )]
 
+    ; the lambda body for picking up the lantern thrown by the monster
+    [(equal? key "logic for picking up the thrown lantern")
+
+     (let* ([state-1 (pick-up-item "LANTERN " game-state)]
+            [state-2 (remove-menu-item (get-current-menu-name state-1) "P" state-1)])
+       [show-dialogue "You pick up the lantern"]
+       [game-loop state-2])]
+     
+
     ; the lambda body of the add-menu call that adds an option for looking at the labyrinth map
     [(equal? key "logic for looking at labyrinth map")
 
-     [show-dialogue "Using the light of the lantern to see the walls, there is what appears to be some sort of map engraved on them"]
+     [show-dialogue "Using the light of the lantern, you see what appears to be a map engraved on the walls"]
      [show-dialogue
 "++++++++++++++++++++++++++++++
 ++++++++++++++++++++++++++++++
@@ -592,6 +679,8 @@
        [show-dialogue "Inside, it is too dark to see anything. Looks like it is going to be trial and error from here on out"]
        [game-loop state-1])]
 
+; --- TREASURE ROOM ---
+    
     ; the lambda body of the "open the chests!" option from the treasure room of the labyrinth
     [(equal? key "logic for finding out you have to play another mimic game")
 
@@ -621,10 +710,18 @@
                [game-loop (pick-up-item "LANTERN " state-4)])]
 
             [else
-             [show-dialogue "The mimic feels bad for you and gives you a 5,000 coin consolation prize"]
-             [game-loop (add-coins 5000 state-1)]]
+             [show-dialogue "The mimic feels bad for you and gives you a 15,000 coin consolation prize"]
+             [game-loop (add-coins 15000 state-1)]]
             ))]
        )]
+
+    ; the lambda body for looking for the secret alluded to by the message in the secret passage
+    [(equal? key "logic for looking for secret in treasure room")
+
+     (let* ([state-1 (remove-menu-item "treasure-room" "S" game-state)])
+       [show-dialogue "You search every nook and cranny in the room"]
+       [show-dialogue "Finally, you find a hidden switch.  Upon pressing it a strange upgrade module falls to the ground"]
+       [game-loop (pick-up-item "UPGRADE MODULE R2 " state-1)])]
 
           
 

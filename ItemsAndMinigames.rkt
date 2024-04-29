@@ -120,7 +120,7 @@
     (cond
       [(< current-coins 0)                            ; lose condition: you're in debt; send player to lose-location
        (show-dialogue "You have run out of coins. You pass out")
-       (show-dialogue (format "When you awaken, you find yourself in ~a" lose-location))
+       (show-dialogue (format "When you awaken, you find yourself at the entrance to the labyrinth" lose-location))
        (let* ([state-1 (set-coin-count 0 game-state)]
               [state-2 (set-current-menu lose-location game-state)])
          [game-loop state-2])]
@@ -138,7 +138,7 @@
             (show-dialogue (format "-~a coins; you now have ~a coins" (* coin-lose-amount 2) (- current-coins (* 2 coin-lose-amount))))
             (trap-game-loop [- current-coins (* 2 coin-lose-amount)] [min (+ 5 range) 25])]
 
-           [(= (string->number guess) correct-number) ; win condition (guess == correct-number); return current-coins
+           [(= (string->number guess) correct-number) ; win condition (guess == correct-number); call game-loop with a game-state that has current-coins coins
             (show-dialogue "You escape the trap!")
             (let ([state-1 (set-coin-count current-coins game-state)])
               [game-loop state-1])]
@@ -153,10 +153,39 @@
   (trap-game-loop current-coins))
        
        
-       
-  
-  
-  
+; --- BLACKJACK ------------------------------------------------------------------------------------------------------
+
+; pre  -- takes no arguments
+; post -- has the player play an unfair game of blackjack; returns true if game results in a tie, otherwise false
+; signature: void -> boolean
+(define (bs-blackjack)
+  (blackjack-game-loop))
+
+(define (blackjack-game-loop [current-total 0] [stand? #f])
+  (cond
+    [stand?
+     (show-dialogue (format "Your final hand: ~a\nThe house's final hand: 21\n---\nYou lose!" current-total)) #f]
+
+    [(> current-total 21)
+     (show-dialogue (format "Current hand: ~a~nBust! You lose" current-total)) #f]
+
+    [(= current-total 21)
+     (show-dialogue "Tie! No one wins") #t]
+
+    [else
+     (displayln (format "Your current hand: ~a~n---" current-total))
+     ((make-choice blackjack-menu) current-total)]))
+     
+
+(define blackjack-menu
+  (list "blackjack-menu"
+        [list "Hit" "A" (lambda (current-total) {begin
+                                                  (let* ([card-amount (+ (add1 (random 10)) 10)]
+                                                         [new-total (+ current-total card-amount)])
+                                                    [show-dialogue (format "You drew a ~a.  \"What the heck?\"" card-amount)]
+                                                    [blackjack-game-loop new-total #f])})]
+        [list "Stand" "B" (lambda (current-total) {blackjack-game-loop current-total #t})]
+        ))
   
     
 
@@ -295,3 +324,5 @@ Message: there is no        Message: there is no        Message: there is no
 (define (mimic-game-1)
   (show-chests mimic-game-state-1)
   (mimic-game mimic-game-state-1))
+
+(bs-blackjack)
