@@ -8,6 +8,9 @@
 (provide number-memorization-game)
 (provide trap-game)
 (provide mimic-game-1)
+(provide mimic-game-2)
+(provide bs-blackjack)
+(provide unfair-number-game)
 
 ; --- NUMBER GUESSING MINIGAME ---------------------------------------------------------------------------
 
@@ -134,7 +137,7 @@
            [(or (boolean? (string->number guess))     ; guess isn't a number or is out of range; punish the player for bad input
                 (> (string->number guess) range)
                 (< (string->number guess) 1))
-            (show-dialogue "Your guess was so bad that you triggered another trap, making your escape harder; you lost double coins as well")
+            (show-dialogue "Your guess was so bad that you triggered another trap making your escape harder; you lost double coins as well")
             (show-dialogue (format "-~a coins; you now have ~a coins" (* coin-lose-amount 2) (- current-coins (* 2 coin-lose-amount))))
             (trap-game-loop [- current-coins (* 2 coin-lose-amount)] [min (+ 5 range) 25])]
 
@@ -164,7 +167,7 @@
 (define (blackjack-game-loop [current-total 0] [stand? #f])
   (cond
     [stand?
-     (show-dialogue (format "Your final hand: ~a\nThe house's final hand: 21\n---\nYou lose!" current-total)) #f]
+     (show-dialogue (format "Your final hand: ~a~nThe house's final hand: 21\n---\nYou lose!" current-total)) #f]
 
     [(> current-total 21)
      (show-dialogue (format "Current hand: ~a~nBust! You lose" current-total)) #f]
@@ -186,6 +189,29 @@
                                                     [blackjack-game-loop new-total #f])})]
         [list "Stand" "B" (lambda (current-total) {blackjack-game-loop current-total #t})]
         ))
+
+
+; --- UNFAIR NUMBER GAME ----------------------------------------------------------------------------------------
+
+; pre  -- takes no arguments
+; post -- has the player play an unfair number game where there are no correct answers
+; signature: void -> void
+(define (unfair-number-game)
+
+  (define unfair-number-menu
+  (list "unfair-number-menu"
+        [list (format "~a" (random 10)) "A" (lambda () {display ""})]
+        [list (format "~a" (random 10)) "B" (lambda () {display ""})]
+        [list (format "~a" (random 10)) "C" (lambda () {display ""})]
+        [list (format "~a" (random 10)) "D" (lambda () {display ""})]
+        ))
+  
+  (displayln (format "What is the next number in this sequence: ~a, ~a, ~a, ~a, ~a~n---"
+                     (random 10) (random 10) (random 10) (random 10) (random 10)))
+  ((make-choice unfair-number-menu))
+  (show-dialogue "That was incorrect.  You lose!"))
+
+
   
     
 
@@ -325,4 +351,61 @@ Message: there is no        Message: there is no        Message: there is no
   (show-chests mimic-game-state-1)
   (mimic-game mimic-game-state-1))
 
-(bs-blackjack)
+; *** MIMIC GAME #2 ********************
+
+(define chest-menu-2
+  (list "chest-menu-1"
+        [list "Pick chest A" "A" (lambda (original-state) {begin
+                                                            [define state-1 (open-mimic original-state)]
+                                                            [mimic-game state-1]})]
+        [list "Pick chest B" "B" (lambda (original-state) {begin
+                                                            [define state-1 (open-mimic original-state)]
+                                                            [mimic-game state-1]})]
+        [list "Pick chest C" "C" (lambda (original-state) {begin
+                                                            [define state-1 (open-non-mimic original-state)]
+                                                            [define state-2 (remove-mimic-menu-item "C" state-1)]
+                                                            [mimic-game state-2]})]
+        [list "Pick chest D" "D" (lambda (original-state) {begin
+                                                            [define state-1 (open-non-mimic original-state)]
+                                                            [define state-2 (remove-mimic-menu-item "D" state-1)]
+                                                            [mimic-game state-2]})]
+        [list "Pick chest E" "E" (lambda (original-state) {begin
+                                                            [define state-1 (open-mimic original-state)]
+                                                            [mimic-game state-1]})]
+        [list "Pick chest F" "F" (lambda (original-state) {begin
+                                                            [define state-1 (open-non-mimic original-state)]
+                                                            [define state-2 (remove-mimic-menu-item "F" state-1)]
+                                                            [mimic-game state-2]})]
+        [list "Pick chest G" "G" (lambda (original-state) {begin
+                                                            [define state-1 (open-non-mimic original-state)]
+                                                            [define state-2 (remove-mimic-menu-item "G" state-1)]
+                                                            [mimic-game state-2]})]
+        [list "Show Chests" "Z" (lambda (original-state) {begin
+                                                           [show-chests original-state]
+                                                           [mimic-game original-state]})]
+        ))
+
+(define chest-string-2
+  "Number of Mimics: 3 || Number of Chests: 4
+
+                    Chest: A                              Chest: B
+                    Message: The box on the               Message: Diagonal down
+                             right isn't a                         left from me
+                             mimic                                 is a mimic
+
+Chest: C                             Chest: D                                      Chest: E
+Message: Diagonal up                 Message: Diagonal down                        Message: The box
+         right from me                        right from me                                 on the left
+         is a mimic                           isn't a mimic                                 is a mimic
+                    
+                    Chest: F                               Chest: G
+                    Message: The box                       Message: Diagonal up
+                             on the right                           left from me
+                             isn't a mimic                          isn't a mimic
+")
+
+(define mimic-game-state-2 (list 0 chest-menu-2 chest-string-2 4 #f 3))
+
+(define (mimic-game-2)
+  (show-chests mimic-game-state-2)
+  (mimic-game mimic-game-state-2))

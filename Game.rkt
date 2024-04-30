@@ -21,6 +21,6 @@
 (define starting-game-state (list "title"
                                   menu-list
                                   inventory-list
-                                  0 0))
+                                  1000000000000 0))
 
 (game-loop starting-game-state)

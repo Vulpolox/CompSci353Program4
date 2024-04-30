@@ -174,7 +174,13 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (remove-menu-item "upgrade-menu" "C" game-state)]
+                                                                                      [state-2 (increment-click-amount 1000 state-1)]
+                                                                                      [state-3 (use-item "UPGRADE MODULE V3 " state-2)])
+                                                                                 [show-dialogue "You insert the upgrade module in the coin generator"]
+                                                                                 [show-dialogue "The screen reads \"COIN AMOUNT + 1,000\""]
+                                                                                 [game-loop state-3])]
+                                                                              )})]
         [list "Upgrade 4  (1x UPGRADE MODULE V4)" "D" (lambda (game-state) {begin
                                                                             (cond
                                                                               [(not (item-in-inventory? "UPGRADE MODULE V4 " game-state))
@@ -182,7 +188,14 @@
                                                                                [game-loop game-state]]
 
                                                                               [else
-                                                                               "todo"])})]
+                                                                               (let* ([state-1 (remove-menu-item "upgrade-menu" "D" game-state)]
+                                                                                      [state-2 (increment-click-amount 50000 state-1)]
+                                                                                      [state-3 (use-item "UPGRADE MODULE V4 " state-2)])
+                                                                                 [show-dialogue "You insert the upgrade module into the coin generator"]
+                                                                                 [show-dialogue "\"COIN AMOUNT + 50,000\""]
+                                                                                 [show-dialogue "You finally have the means to escape!"]
+                                                                                 [game-loop state-3])]
+                                                                              )})]
         [list "Upgrade ?  (1x UPGRADE MODULE R)" "E" (lambda (game-state) {begin
                                                                             (cond
                                                                               [(not (item-in-inventory? "UPGRADE MODULE R " game-state))
@@ -216,8 +229,9 @@
                                                                                       [state-4 (remove-menu-item "upgrade-menu" "F" state-3)])
                                                                                  [show-dialogue "You insert the strange upgrade module into the coin generator"]
                                                                                  [show-dialogue "On the screen, you read: \"R MODE BOOSTED\""]
-                                                                                 [show-dialogue "You will now have a 40% chance of receiving 0.2x your total coins\nper press of the button; this bonus caps at 30,000 coins"]
-                                                                                 [game-loop state-4])])})]
+                                                                                 [show-dialogue "You will now have a 40% chance of receiving 0.2x your total coins\nper press of the button; this bonus now caps at 30,000 coins"]
+                                                                                 [game-loop state-4])]
+                                                                              )})]
         ))
 
 ; --- NORTH PATH MENU -------------------------------------------------------------------------------
@@ -366,9 +380,11 @@
 
                                                                                                                                                               [(item-in-inventory? "LANTERN " game-state)
                                                                                                                                                                (let* ([state-1 (use-item "LANTERN " game-state)]
-                                                                                                                                                                      [state-2 (add-menu-item state-1 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering secret passage found by lantern"}))])
+                                                                                                                                                                      [state-2 (remove-menu-item "treasure-room" "M" state-1)]
+                                                                                                                                                                      [state-3 (add-menu-item state-1 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering secret passage found by lantern"}))])
                                                                                                                                                                  [show-dialogue "With the help of the lantern, you find a secret passage!"]
-                                                                                                                                                                 [game-loop state-2])]
+                                                                                                                                                                 [show-dialogue "You leave the lantern at the entrance to mark its location"]
+                                                                                                                                                                 [game-loop state-3])]
 
                                                                                                                                                               [(= rand-num 9)
                                                                                                                                                                (let* ([coin-amount (random 1000)]
@@ -503,6 +519,190 @@
                                                                         [game-loop state-1]})]
         ))
 
+; --- DEEP LABYRINTH --------------------------------------------------------------------------
+
+(define deep-labyrinth-1
+  (list "deep-labyrinth-1"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-2" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-2
+  (list "deep-labyrinth-2"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-1" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-3" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-3
+  (list "deep-labyrinth-3"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-4" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-2" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define deep-labyrinth-4
+  (list "deep-labyrinth-4"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-3" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-5
+  (list "deep-labyrinth-5"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-4" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-6
+  (list "deep-labyrinth-6"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-7" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define deep-labyrinth-7
+  (list "deep-labyrinth-7"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-8" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-8
+  (list "deep-labyrinth-8"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-9" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-7" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-9
+  (list "deep-labyrinth-9"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-10" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-8" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define deep-labyrinth-10
+  (list "deep-labyrinth-10"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-11" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-9" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define deep-labyrinth-11
+  (list "deep-labyrinth-11"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-10" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-12" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define deep-labyrinth-12
+  (list "deep-labyrinth-12"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-11" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-treasure-room" game-state)]
+                                                   [show-dialogue "You enter the deep treasure room"]
+                                                   [game-loop state-1]})]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define dead-end-1
+  (list "dead-end-1"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-4" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define dead-end-2
+  (list "dead-end-2"
+        [list "Go north" "A" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
+                                                   [game-loop state-1]})]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) "todo")]
+        ))
+
+(define dead-end-3
+  (list "dead-end-3"
+        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
+                                                   [game-loop state-1]})]
+        ))
+
+(define deep-treasure-room
+  (list "deep-treasure-room"
+        [list "Return to labyrinth" "R" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "deep-labyrinth-12" game-state)]
+                                                   [show-dialogue "You head back into the labyrinth"]
+                                                   [game-loop state-1]})]
+        [list "Pick up ???" "P" (lambda (game-state) {lambda-extractor game-state "logic for picking up upgrade module r2 from deep treasure room"})]
+        ))
+
 ; --- SECRET PASSAGE --------------------------------------------------------------------------
 
 (define secret-passage
@@ -511,11 +711,40 @@
         [list "Read the message" "B" (lambda (game-state) {lambda-extractor game-state "logic for reading the message"})]
         [list "Go back" "R" (lambda (game-state) {lambda-extractor game-state "logic for leaving secret passage"})]
         ))
+
+; --- EAST PATH --------------------------------------------------------------------------------
+(define east-path
+  (list "east-path"
+        [list "Check your surroundings" "S" (lambda (game-state) {begin
+                                                                   (let* ([state-1 (add-menu-item game-state "east-path" "Play blackjack (100,000 coins)" "A" (lambda (game-state)
+                                                                                                                                                                {lambda-extractor game-state "logic for playing blackjack"}))]
+                                                                          [state-2 (add-menu-item state-1 "east-path" "Play number guessing game (50,000 coins)" "B" (lambda (game-state)
+                                                                                                                                                                          {lambda-extractor game-state "logic for playing unfair number guessing game"}))]
+                                                                          [state-3 (add-menu-item state-2 "east-path" "Play mimic game (1 mimic key)" "C" (lambda (game-state)
+                                                                                                                                                               {lambda-extractor game-state "logic for playing casino mimic game"}))]
+                                                                          [state-4 (add-menu-item state-3 "east-path" "Play pattern recognition game (150,000 coins)" "D" (lambda (game-state)
+                                                                                                                                                            {lambda-extractor game-state "logic for playing pattern recognition game"}))]
+                                                                          [state-5 (add-menu-item state-4 "east-path" "Play slot machine (50,000 coins)" "E" (lambda (game-state)
+                                                                                                                                                               {lambda-extractor game-state "logic for playing slot machine"}))]
+                                                                          [state-6 (remove-menu-item "east-path" "S" state-5)]
+                                                                          [state-7 (add-menu-item state-6 "east-path" "Drop item" "W" (lambda (game-state) {lambda-extractor game-state "logic for dropping items"}))])
+                                                                     [show-dialogue "As you turn the corner, you are shocked to see a sprawling casino with all sorts of things to do"]
+                                                                     [show-dialogue "Among all the blackjack tables and slot machines, surely you will be able to gather enough coins to leave this place"]
+                                                                     [game-loop state-7])})]
+        [list "Return to main area" "R" (lambda (game-state) {lambda-extractor game-state "logic for returning to main-menu"})]
+        [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
+                                                                #:current-location "EAST PATH"
+                                                                #:description "An enormous subterranean casino of mysterious origin"})]
+        ))
         
 
 ; menu-list to provide for use in the starting game-state
-(define menu-list (list title main-menu upgrade-menu north-path south-path west-path
-                        labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room secret-passage))
+(define menu-list (list title main-menu upgrade-menu north-path south-path west-path east-path
+                        labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room secret-passage
+                        deep-labyrinth-1 deep-labyrinth-2 deep-labyrinth-3 deep-labyrinth-4 deep-labyrinth-5
+                        deep-labyrinth-6 deep-labyrinth-7 deep-labyrinth-8 deep-labyrinth-9 deep-labyrinth-10
+                        deep-labyrinth-11 deep-labyrinth-12 dead-end-1 dead-end-2 dead-end-3 deep-treasure-room
+                        ))
 
 
 ; pre  -- takes a game-state object and a string key (and possibly some keyword arguments)
@@ -587,16 +816,16 @@
     [(equal? key "logic for reading the message")
      
      (let* ([state-1 (remove-menu-item "secret-passage" "B" game-state)]
-            [state-2 (add-menu-item state-1 "secret-passage" "Read the message" "B" (lambda (game-state) {lambda-extractor game-state "logic for rereading message"}))]
+            [state-2 (add-menu-item state-1 "secret-passage" "Re-read the message" "B" (lambda (game-state) {lambda-extractor game-state "logic for rereading message"}))]
             [state-3 (add-menu-item state-2 "treasure-room" "Look for the secret" "S" (lambda (game-state) {lambda-extractor game-state "logic for looking for secret in treasure room"}))])
-       [show-dialogue "\"A secret item can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
+       [show-dialogue "\"A secret can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
        [game-loop state-3]
        )]
 
     ; the lambda body for reading the messsage any subsequent time in the secret passage
     [(equal? key "logic for rereading message")
      
-     [show-dialogue "\"A secret item can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
+     [show-dialogue "\"A secret can be found in the treasure room of the labyrinth.  Look for a hidden switch\""]
      [game-loop game-state]]
 
     ; the lambda body for leaving the secret passage
@@ -645,6 +874,7 @@
      (let* ([state-1 (pick-up-item "LANTERN " game-state)]
             [state-2 (remove-menu-item (get-current-menu-name state-1) "P" state-1)])
        [show-dialogue "You pick up the lantern"]
+       [show-dialogue "\"Why did I think that would work?\" you think out loud.\nThere must be some other dark area where you can use the lantern"]
        [game-loop state-2])]
      
 
@@ -699,7 +929,7 @@
         [game-loop game-state]]
 
        [else
-        (let ([win? (mimic-game-1)]
+        (let ([win? (mimic-game-2)]
               [state-1 (use-item "MIMIC KEY " game-state)])
           (cond
             [win?
@@ -718,10 +948,18 @@
     ; the lambda body for looking for the secret alluded to by the message in the secret passage
     [(equal? key "logic for looking for secret in treasure room")
 
-     (let* ([state-1 (remove-menu-item "treasure-room" "S" game-state)])
-       [show-dialogue "You search every nook and cranny in the room"]
-       [show-dialogue "Finally, you find a hidden switch.  Upon pressing it a strange upgrade module falls to the ground"]
-       [game-loop (pick-up-item "UPGRADE MODULE R2 " state-1)])]
+     (let* ([state-1 (remove-menu-item "treasure-room" "S" game-state)]
+            [state-2 (add-menu-item state-1 "treasure-room" "Go deeper into labyrinth" "L" (lambda (game-state) {lambda-extractor game-state "logic for going deeper into labyrinth"}))])
+       [show-dialogue "Not wanting to put up with this stupid labyrinth any more, you frantically search every nook and cranny in the room"]
+       [show-dialogue "Finally, you find a hidden switch. Upon flipping it, a passage leading deeper into the labyrinth opens"]
+       [game-loop state-2])]
+
+    ; the lambda body for entering the deep-labyrinth
+    [(equal? key "logic for going deeper into labyrinth")
+
+     (let ([state-1 (set-current-menu "deep-labyrinth-1" game-state)])
+       [show-dialogue "You reluctantly head deeper into the labyrinth"]
+       [game-loop state-1])]
 
           
 
@@ -753,6 +991,22 @@
      (let ([state-1 (set-current-menu "main-menu" game-state)])
        [show-dialogue "You head back to the main area"]
        [game-loop state-1])]
+
+; --- EAST PATH ---
+
+    ; the lambda body for playing blackjack
+    [(equal? key "logic for playing blackjack")
+
+     (cond
+       [(< (get-coin-count game-state) 100000)
+        [show-dialogue "You do not have enough coins. Go generate some more"]
+        [game-loop game-state]]
+
+       [else
+        (let* ([state-1 (deduct-coins 100000 game-state)]
+               [temp (bs-blackjack)])
+          [show-dialogue "You can't help but feel you have been cheated"]
+          [game-loop state-1])])]
     
 
 ; --- KEY NOT FOUND ---
