@@ -14,7 +14,7 @@
                         [list "UPGRADE MODULE R " #f #f #f]
                         [list "UPGRADE MODULE R2 " #f #f #f]
                         [list "MIMIC KEY " #f #f #f]
-                        [list "LANTERN " #f #f #f]
+                        [list "LANTERN " #f #t #f]
                         [list "SWORD " #f #f #f]
                         ))
 

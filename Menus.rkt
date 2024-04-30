@@ -523,12 +523,14 @@
 
 (define deep-labyrinth-1
   (list "deep-labyrinth-1"
-        [list "Go north" "A" (lambda (game-state) "todo")]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "You hit a wall and trip a pressure plate.  A giant cardboard box falls from the ceiling right on top of you" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "You run face-first into a wall.  Dazed, you fall backwards onto a massive glue trap" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-2" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {begin
+                                                   [define state-1 (set-current-menu "treasure-room" game-state)]
+                                                   [game-loop state-1]})]
         ))
 
 (define deep-labyrinth-2
@@ -539,14 +541,14 @@
         [list "Go east" "B" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-3" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go south" "C" (lambda (game-state) "todo")]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {trap-game "You encounter a wall with a frozen pipe protruding from it.  Due to a lapse in your judgement, you decide to lick the pipe" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {trap-game "You find a trail of cheese. Hungrily following it and eating as you go, you end up caught in a giant mouse trap" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-3
   (list "deep-labyrinth-3"
-        [list "Go north" "A" (lambda (game-state) "todo")]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "You step on a pressure plate which causes the floor to fall out from beneath you. You fall into a crocodile infested pit" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "You accidentally walk into a part of the labyrinth under construction.  Not watching your step, you end up stepping in wet cement that magically hardens as you touch it" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-4" game-state)]
                                                    [game-loop state-1]})]
@@ -560,11 +562,11 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-3" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "You slip on a banana peel and fall into a pit" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {trap-game "You stumble across a shiny red button with a sign above it saying \"do not press.\" You press the button anyway which releases toxic fumes" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-5
@@ -575,8 +577,8 @@
         [list "Go east" "B" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go south" "C" (lambda (game-state) "todo")]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {trap-game "You happen across a chest. Nonchalantly, you open it only for it to end up being a mimic. The mimic attacks" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {trap-game "You accidentally trip a Rube Goldberg machine.  Mesmerized by its complexity, you fail to react to the falling anvil" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-6
@@ -584,8 +586,8 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-7" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
-        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "A hidden springboard launches you into the ceiling" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "" game-state "west-path"})]
         [list "Go west" "D" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
                                                    [game-loop state-1]})]
@@ -596,23 +598,23 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-8" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-8
   (list "deep-labyrinth-8"
-        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go east" "B" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-9" game-state)]
                                                    [game-loop state-1]})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-7" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-9
@@ -620,8 +622,8 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-10" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
-        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go west" "D" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-8" game-state)]
                                                    [game-loop state-1]})]
@@ -632,17 +634,17 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-11" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-9" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define deep-labyrinth-11
   (list "deep-labyrinth-11"
-        [list "Go north" "A" (lambda (game-state) "todo")]
-        [list "Go east" "B" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go south" "C" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-10" game-state)]
                                                    [game-loop state-1]})]
@@ -653,7 +655,7 @@
 
 (define deep-labyrinth-12
   (list "deep-labyrinth-12"
-        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go east" "B" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-11" game-state)]
                                                    [game-loop state-1]})]
@@ -661,17 +663,17 @@
                                                    [define state-1 (set-current-menu "deep-treasure-room" game-state)]
                                                    [show-dialogue "You enter the deep treasure room"]
                                                    [game-loop state-1]})]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define dead-end-1
   (list "dead-end-1"
-        [list "Go north" "A" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go east" "B" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-4" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go south" "C" (lambda (game-state) "todo")]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go south" "C" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define dead-end-2
@@ -679,16 +681,16 @@
         [list "Go north" "A" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-5" game-state)]
                                                    [game-loop state-1]})]
-        [list "Go east" "B" (lambda (game-state) "todo")]
-        [list "Go south" "C" (lambda (game-state) "todo")]
-        [list "Go west" "D" (lambda (game-state) "todo")]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go west" "D" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         ))
 
 (define dead-end-3
   (list "dead-end-3"
-        [list "Go north" "A" (lambda (game-state) "todo")]
-        [list "Go east" "B" (lambda (game-state) "todo")]
-        [list "Go south" "C" (lambda (game-state) "todo")]
+        [list "Go north" "A" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go east" "B" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
+        [list "Go south" "C" (lambda (game-state) {trap-game "TODO Trap Dialogue" game-state "west-path"})]
         [list "Go west" "D" (lambda (game-state) {begin
                                                    [define state-1 (set-current-menu "deep-labyrinth-6" game-state)]
                                                    [game-loop state-1]})]
