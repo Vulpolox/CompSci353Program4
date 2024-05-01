@@ -30,7 +30,8 @@
 
 ## Setting
 
-The game takes place in a sprawling cave system.  The player has to collect coins Cookie Clicker-style to progress
+The game takes place in a sprawling cave system.  The player has to collect coins Cookie Clicker-style to progress\
+Disclaimer: this game is designed to make you mad and trolls you on several instances
 
 ## Locations
 
@@ -121,4 +122,3 @@ take away the player's coins, and is even used as the method to obtain one of th
 ### Muliple Endings
 
 There is a good ending (escaping the cave) and a bad ending (failing a late-game logic puzzle)
-
