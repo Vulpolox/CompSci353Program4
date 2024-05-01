@@ -9,6 +9,7 @@
 (provide trap-game)
 (provide mimic-game-1)
 (provide mimic-game-2)
+(provide mimic-game-3)
 (provide bs-blackjack)
 (provide unfair-number-game)
 
@@ -71,6 +72,11 @@
         "Did you know: The longest English word without a vowel is \"rhythms.\""
    ])
 
+; pre  -- takes no arguments
+; post -- has the player play a number memorization game where they are given two random 5 digit numbers
+;         and are then shown a random interesting fact to distract them.  They are then asked to enter one of the
+;         numbers; returns #t if they enter the number correctly, #f otherwise
+; signature: void -> bool
 (define (number-memorization-game)
   (define num-1 (number->string (+ (random 90000) 10000))) ; random number between 10,000 and 99,999
   (define num-2 (number->string (+ (random 90000) 10000))) ; random number between 10,000 and 99,999
@@ -81,7 +87,7 @@
 
   (define (clear-console [lines-to-print 5000])
     (if [= lines-to-print 0]
-        [displayln "------------------------------------------"]
+        [displayln "------------------------------------------\n Hey! Don't cheat!"]
         [begin (displayln "*")
                (clear-console (- lines-to-print 1))
         ]
@@ -123,7 +129,7 @@
     (cond
       [(< current-coins 0)                            ; lose condition: you're in debt; send player to lose-location
        (show-dialogue "You have run out of coins. You pass out")
-       (show-dialogue (format "When you awaken, you find yourself at the entrance to the labyrinth" lose-location))
+       (show-dialogue "When you awaken, you find yourself at the entrance to the labyrinth")
        (let* ([state-1 (set-coin-count 0 game-state)]
               [state-2 (set-current-menu lose-location game-state)])
          [game-loop state-2])]
@@ -159,7 +165,8 @@
 ; --- BLACKJACK ------------------------------------------------------------------------------------------------------
 
 ; pre  -- takes no arguments
-; post -- has the player play an unfair game of blackjack; returns true if game results in a tie, otherwise false
+; post -- has the player play an unfair game of blackjack where they are only dealt
+;         cards with illegal values and the house always gets 21; returns true if game results in a tie, otherwise false
 ; signature: void -> boolean
 (define (bs-blackjack)
   (blackjack-game-loop))
@@ -209,10 +216,34 @@
   (displayln (format "What is the next number in this sequence: ~a, ~a, ~a, ~a, ~a~n---"
                      (random 10) (random 10) (random 10) (random 10) (random 10)))
   ((make-choice unfair-number-menu))
-  (show-dialogue "That was incorrect.  You lose!"))
+  (show-dialogue "That was incorrect. You lose!"))
 
+; --- SLOT MACHINE -------------------------------------------------------------------------------------------------
 
-  
+; pre  -- takes no arguments
+; post -- generates three random letters from A to C; if they all match,
+;         return #t, otherwise #f
+; signature: void -> bool
+(define (slot-machine)
+  (define letters (list "A" "B" "C"))
+  (define letter-1 (list-ref letters (random 3)))
+  (define letter-2 (list-ref letters (random 3)))
+  (define letter-3 (list-ref letters (random 3)))
+
+  [show-dialogue "You pull the lever!"]
+  [show-dialogue (format "|~a| | |" letter-1)]
+  [show-dialogue (format "|~a|~a| |" letter-1 letter-2)]
+  [show-dialogue (format "|~a|~a|~a|" letter-1 letter-2 letter-3)]
+
+  (cond
+    [(and (equal? letter-1 letter-2)
+          (equal? letter-1 letter-3))
+     [show-dialogue "You win!"] #t]
+
+    [else
+     [show-dialogue "You lose! Better luck next time"] #f]
+    ))
+                 
     
 
 ; --- MIMIC GAME -----------------------------------------------------------------------------------------------------
@@ -221,6 +252,7 @@
 ; post -- gets an option from chest-menu from user input and calls the state-manipulating function associated with it;
 ;         player loses if they are fooled into picking a mimic, they win if they find all non-mimics; mimics always lie, non-mimics always tell the truth;
 ;         if player loses, returns #f; if they win, returns #t
+; signature: mimic-game-state -> bool
 (define (mimic-game mimic-game-state)
   (define num-non-mimics-opened (first mimic-game-state))
   (define chest-menu (second mimic-game-state))
@@ -242,17 +274,20 @@
      ((make-choice chest-menu) mimic-game-state)]
     ))
 
+; helper function for opening a mimic; manipulates and returns a new mimic-game-state
 (define (open-mimic mimic-game-state)
   [list (first mimic-game-state) (second mimic-game-state)
         (third mimic-game-state) (fourth mimic-game-state) #t
         (sixth mimic-game-state)])
 
+; helper function for opening a normal chest; manipulates and returns a new mimic-game-state
 (define (open-non-mimic mimic-game-state)
   [show-dialogue "You open the chest and find some coins!"]
   [list (add1 (first mimic-game-state)) (second mimic-game-state)
         (third mimic-game-state) (fourth mimic-game-state)
         (fifth mimic-game-state) (sixth mimic-game-state)])
 
+; helper function for removing menu-items from the chest-menu; manipulates and returns a new mimic-game-state
 (define (remove-mimic-menu-item menu-choice mimic-game-state)
   (define menu-object (second mimic-game-state))
   (define menu-choices (cdr menu-object))
@@ -265,62 +300,57 @@
         (third mimic-game-state) (fourth mimic-game-state)
         (fifth mimic-game-state) (sixth mimic-game-state)])
 
+; helper function for displaying the chest-string
 (define (show-chests mimic-game-state)
   (show-dialogue (third mimic-game-state)))
 
-(define template-chest-menu
-  (list "chest-menu-1"
-        [list "Pick chest A" "A" (lambda (original-state) "todo")]
-        [list "Pick chest B" "B" (lambda (original-state) "todo")]
-        [list "Pick chest C" "C" (lambda (original-state) "todo")]
-        [list "Pick chest D" "D" (lambda (original-state) "todo")]
-        [list "Pick chest E" "E" (lambda (original-state) "todo")]
-        [list "Pick chest F" "F" (lambda (original-state) "todo")]
-        [list "Pick chest G" "G" (lambda (original-state) "todo")]
-        [list "Pick chest H" "H" (lambda (original-state) "todo")]
-        [list "Pick chest I" "I" (lambda (original-state) "todo")]
-        ))
+; helper function for simplifying the creation of chest-menus by allowing
+; lambda bodies to be defined in it
+(define (mimic-lambda-extractor original-state key
+                                #:remove-choice [remove-choice ""])
+  (cond
+
+    ; logic for opening a normal chest
+    [(and (equal? key "open chest")
+          (not (equal? remove-choice "")))
+
+     (let* ([state-1 (open-non-mimic original-state)]
+            [state-2 (remove-mimic-menu-item remove-choice state-1)])
+       [mimic-game state-2])]
+
+    ; logic for opening a mimic
+    [(equal? key "open mimic")
+
+     (let* ([state-1 (open-mimic original-state)])
+       [mimic-game state-1])]
+
+    ; logic for showing chest-menu
+    [(equal? key "show chests")
+
+     (begin
+       [show-chests original-state]
+       [mimic-game original-state])]
+
+    ; fallback for if chest-menu isn't properly set up
+    [else
+      [show-dialogue (format "function called improperly~nkey: ~a~nremove-choice: ~a" key remove-choice)]
+      [mimic-game original-state]]
+    ))
 
 ; *** MIMIC GAME #1 ********************
 
 (define chest-menu-1
   (list "chest-menu-1"
-        [list "Pick chest A" "A" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest B" "B" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "B" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest C" "C" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "C" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest D" "D" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest E" "E" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "E" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest F" "F" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "F" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest G" "G" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest H" "H" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "H" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest I" "I" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "I" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Show Chests" "Z" (lambda (original-state) {begin
-                                                           [show-chests original-state]
-                                                           [mimic-game original-state]})]
+        [list "Pick chest A" "A" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest B" "B" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "B"})]
+        [list "Pick chest C" "C" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "C"})]
+        [list "Pick chest D" "D" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest E" "E" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "E"})]
+        [list "Pick chest F" "F" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "F"})]
+        [list "Pick chest G" "G" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest H" "H" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "H"})]
+        [list "Pick chest I" "I" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "I"})]
+        [list "Show Chests" "Z" (lambda (original-state) {mimic-lambda-extractor original-state "show chests"})]
         ))
 
 (define chest-string-1
@@ -351,38 +381,19 @@ Message: there is no        Message: there is no        Message: there is no
   (show-chests mimic-game-state-1)
   (mimic-game mimic-game-state-1))
 
+
 ; *** MIMIC GAME #2 ********************
 
 (define chest-menu-2
   (list "chest-menu-1"
-        [list "Pick chest A" "A" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest B" "B" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest C" "C" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "C" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest D" "D" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "D" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest E" "E" (lambda (original-state) {begin
-                                                            [define state-1 (open-mimic original-state)]
-                                                            [mimic-game state-1]})]
-        [list "Pick chest F" "F" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "F" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Pick chest G" "G" (lambda (original-state) {begin
-                                                            [define state-1 (open-non-mimic original-state)]
-                                                            [define state-2 (remove-mimic-menu-item "G" state-1)]
-                                                            [mimic-game state-2]})]
-        [list "Show Chests" "Z" (lambda (original-state) {begin
-                                                           [show-chests original-state]
-                                                           [mimic-game original-state]})]
+        [list "Pick chest A" "A" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest B" "B" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest C" "C" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "C"})]
+        [list "Pick chest D" "D" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "D"})]
+        [list "Pick chest E" "E" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest F" "F" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "F"})]
+        [list "Pick chest G" "G" (lambda (original-state) {mimic-lambda-extractor original-state "open chest" #:remove-choice "G"})]
+        [list "Show Chests" "Z" (lambda (original-state) {mimic-lambda-extractor original-state "show chests"})]
         ))
 
 (define chest-string-2
@@ -409,3 +420,45 @@ Message: Diagonal up                 Message: Diagonal down                     
 (define (mimic-game-2)
   (show-chests mimic-game-state-2)
   (mimic-game mimic-game-state-2))
+
+
+; *** MIMIC GAME #3 ********************
+
+(define chest-menu-3
+  (list "chest-menu-1"
+        [list "Pick chest A" "A" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest B" "B" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest C" "C" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest D" "D" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest E" "E" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest F" "F" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest G" "G" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest H" "H" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Pick chest I" "I" (lambda (original-state) {mimic-lambda-extractor original-state "open mimic"})]
+        [list "Show Chests" "Z" (lambda (original-state) {mimic-lambda-extractor original-state "show chests"})]
+        ))
+
+(define chest-string-3
+"Number of Mimics: ?? || Number of Chests: ??
+
+Chest: A                    Chest: B                    Chest: C  
+Message: The box to my      Message: The box to my      Message: The box below
+         right is not                left is not                 me is not a
+         a mimic                     a mimic                     mimic
+
+Chest: D                    Chest: E                    Chest: F
+Message: The box below      Message: The box below      Message: The box above
+         me is not a                 me is not a                 me is not a
+         mimic                       mimic                       mimic
+
+Chest: G                    Chest: H                    Chest: I
+Message: None of the        Message: The top row        Message: The bottom row
+         boxes are                   contains no                 contains no
+         mimics                      mimics                      mimics         
+")
+
+(define mimic-game-state-3 (list 0 chest-menu-3 chest-string-3 9 #f 9))
+
+(define (mimic-game-3)
+  (show-chests mimic-game-state-3)
+  (mimic-game mimic-game-state-3))

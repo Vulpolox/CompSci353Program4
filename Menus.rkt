@@ -1,7 +1,7 @@
 #lang racket
 (require "GameState.rkt")         ; provides all of the functions required to manipulate the game-state
 (require "UI.rkt")                ; provides "show-dialogue" function for displaying messages
-(require "ItemsAndMinigames.rkt") ; provides all of the mini game functions
+(require "Minigames.rkt") ; provides all of the mini game functions
 
 (provide menu-list)
 
@@ -742,10 +742,11 @@
                                                                           [state-5 (add-menu-item state-4 "east-path" "Play slot machine (50,000 coins)" "E" (lambda (game-state)
                                                                                                                                                                {lambda-extractor game-state "logic for playing slot machine"}))]
                                                                           [state-6 (remove-menu-item "east-path" "S" state-5)]
-                                                                          [state-7 (add-menu-item state-6 "east-path" "Drop item" "W" (lambda (game-state) {lambda-extractor game-state "logic for dropping items"}))])
+                                                                          [state-7 (add-menu-item state-6 "east-path" "Drop item" "W" (lambda (game-state) {lambda-extractor game-state "logic for dropping items"}))]
+                                                                          [state-8 (add-menu-item state-7 "east-path" "Buy mimic key (150,000 coins)" "K" (lambda (game-state) {lambda-extractor game-state "logic for buying mimic key"}))])
                                                                      [show-dialogue "As you turn the corner, you are shocked to see a sprawling casino with all sorts of things to do"]
                                                                      [show-dialogue "Among all the blackjack tables and slot machines, surely you will be able to gather enough coins to leave this place"]
-                                                                     [game-loop state-7])})]
+                                                                     [game-loop state-8])})]
         [list "Return to main area" "R" (lambda (game-state) {lambda-extractor game-state "logic for returning to main-menu"})]
         [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
                                                                 #:current-location "EAST PATH"
@@ -1025,6 +1026,7 @@
         [game-loop game-state]]
 
        [else
+        [show-dialogue "You give 100,000 coins to the dealer and take a seat"]
         (let* ([state-1 (deduct-coins 100000 game-state)]
                [temp (bs-blackjack)])
           [show-dialogue "You can't help but feel you have been cheated"]
@@ -1033,23 +1035,81 @@
     ; the lambda body for playing the unfair number guessing game
     [(equal? key "logic for playing unfair number guessing game")
 
-     "todo"]
+     (cond
+       [(< (get-coin-count game-state) 50000)
+        [show-dialogue "You're too poor to play"]
+        [game-loop game-state]]
 
+       [else
+        [show-dialogue "You decide to fork over 50,000 coins to play the number guessing game"]
+        (let ([win? (number-guessing-game 1000000)]
+              [state-1 (deduct-coins 50000 game-state)])
+          (cond
+            [win?
+             [show-dialogue "You miraculously won! You receive 10,000,000 coins!"]
+             [game-loop (add-coins 10000000 state-1)]]
+
+            [else
+             [show-dialogue "You feel cheated out of your coins"]
+             [game-loop state-1]]
+            ))]
+       )]
+
+    ; the lambda body for playing the casino mimic game
     [(equal? key "logic for playing casino mimic game")
 
-     "todo"]
+     (cond
+       [(not (item-in-inventory? "MIMIC KEY " game-state))
+        [show-dialogue "You need a mimic key to play"]
+        [game-loop game-state]]
 
+       [else
+        [show-dialogue "You decide to play the mimic game"]
+        (let* ([state-1 (use-item "MIMIC KEY " game-state)]
+               [state-2 (deduct-coins 30000 state-1)]
+               [win (mimic-game-3)])
+          [show-dialogue "The mimic works for the casino and charges you 30,000 coins for playing"]
+          [game-loop state-2])]
+       )]
+
+    ; the lambda body for playing the bogus pattern recognition game
     [(equal? key "logic for playing pattern recognition game")
 
-     "todo"]
+     (cond
+       [(< (get-coin-count game-state) 150000)
+        [show-dialogue "You don't have enough coins to play"]
+        [game-loop game-state]]
 
-    [(equal? key "logic for playing pattern recognition game")
+       [else
+        [show-dialogue "You decide to take a shot at the pattern game"]
+        (begin
+          [unfair-number-game]
+          [game-loop (deduct-coins 150000 game-state)])]
+       )]
 
-     "todo"]
-
+    ; the lambda body for playing the slot machine
     [(equal? key "logic for playing slot machine")
 
      "todo"]
+
+    ; the lambda body that handles the logic of buying mimic keys
+    [(equal? "key logic for buying mimic key")
+
+     (cond
+       [(< (get-coin-count game-state) 150000)
+        [show-dialogue "You don't have enough coins"]
+        [game-loop game-state]]
+
+       [(item-in-inventory? "MIMIC KEY " game-state)
+        [show-dialogue "You already have a mimic key"]
+        [game-loop game-state]]
+
+       [else
+        (let* ([state-1 (deduct-coins 150000 game-state)])
+          [show-dialogue "You give the vendor 150,000 coins"]
+          [game-loop (pick-up-item "MIMIC KEY " state-1)])]
+       )]
+       
     
 
 ; --- KEY NOT FOUND ---

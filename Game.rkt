@@ -2,7 +2,7 @@
 
 (require "Menus.rkt")             ; provides "menu-list" containing all of the game's menus
 (require "GameState.rkt")         ; provides the "game-loop" function
-(require "ItemsAndMinigames.rkt") ; provides the "inventory-list" containing all items in the game
+(require "Minigames.rkt") ; provides the "inventory-list" containing all items in the game
 
 ; format of inventory-item: '(item-name collected? in-inventory? used?)
 (define inventory-list (list
