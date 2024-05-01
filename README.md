@@ -31,7 +31,7 @@
 ## Setting
 
 The game takes place in a sprawling cave system.  The player has to collect coins Cookie Clicker-style to progress\
-Disclaimer: this game is designed to make you mad and trolls you on several instances
+Disclaimer: this game is designed to make you mad and trolls you on several instances (you will definitely need a pen and paper)
 
 ## Locations
 
