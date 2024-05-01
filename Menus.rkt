@@ -1,7 +1,7 @@
 #lang racket
 (require "GameState.rkt")         ; provides all of the functions required to manipulate the game-state
 (require "UI.rkt")                ; provides "show-dialogue" function for displaying messages
-(require "Minigames.rkt") ; provides all of the mini game functions
+(require "Minigames.rkt")         ; provides all of the mini game functions
 
 (provide menu-list)
 
@@ -16,7 +16,7 @@
                                  (game-loop new-state)
                                 }
                                 )]
-        [list "Exit Game" "B" (lambda (game-state) {display "THANKS FOR PLAYING"})]
+        [list "Exit Game" "B" (lambda (game-state) {show-dialogue "THANKS FOR PLAYING"})]
         ))
 
 
@@ -100,7 +100,7 @@
                                                              (game-loop state-3))]
                                                           )}
                                                       )]
-        [list "Escape (5,000,000 coins)" "E" (lambda (game-state) {lambda-extractor game-state "logic for unlocking victory-path"})]
+        [list "Escape (20,000,000)" "E" (lambda (game-state) {lambda-extractor game-state "logic for unlocking victory-path"})]
         [list "Drop item" "W" (lambda (game-state)
                                 {begin
                                   [define state-1 (drop-item game-state)]
@@ -109,11 +109,11 @@
         [list "Check your surroundings" "S" (lambda (game-state)
                                               {begin
                                                 [show-dialogue "You take a look around. There are four blocked paths in each of the cardinal directions but no way to advance.\nOut of the corner of your eye, you spot a strange device"]
-                                                [define state-1 (add-menu-item game-state "main-menu" "Investigate the strange device" "P" (lambda (game-state)
+                                                [define state-1 (add-menu-item game-state "main-menu" "Investigate the strange device" "I" (lambda (game-state)
                                                                                                                                 {begin
                                                                                                                                   [show-dialogue "Upon closer examination of the device, you find a button. Upon pressing it, a golden coin drops to the ground"]
-                                                                                                                                  [define state-1 (remove-menu-item "main-menu" "P" game-state)]
-                                                                                                                                  [define state-2 (increment-click-amount 1 state-1)]
+                                                                                                                                  [define state-1 (remove-menu-item "main-menu" "I" game-state)]
+                                                                                                                                  [define state-2 (add-coins 1 state-1)]
                                                                                                                                   [define state-3 (add-menu-item state-2 "main-menu" "Press the coin button" "P" (lambda (game-state)
                                                                                                                                                                                                               {begin
                                                                                                                                                                                                                 [define state-1 (click game-state)]
@@ -175,10 +175,10 @@
 
                                                                               [else
                                                                                (let* ([state-1 (remove-menu-item "upgrade-menu" "C" game-state)]
-                                                                                      [state-2 (increment-click-amount 1000 state-1)]
+                                                                                      [state-2 (increment-click-amount 10000 state-1)]
                                                                                       [state-3 (use-item "UPGRADE MODULE V3 " state-2)])
                                                                                  [show-dialogue "You insert the upgrade module in the coin generator"]
-                                                                                 [show-dialogue "The screen reads \"COIN AMOUNT + 1,000\""]
+                                                                                 [show-dialogue "The screen reads \"COIN AMOUNT + 10,000\""]
                                                                                  [game-loop state-3])]
                                                                               )})]
         [list "Upgrade 4  (1x UPGRADE MODULE V4)" "D" (lambda (game-state) {begin
@@ -189,10 +189,10 @@
 
                                                                               [else
                                                                                (let* ([state-1 (remove-menu-item "upgrade-menu" "D" game-state)]
-                                                                                      [state-2 (increment-click-amount 50000 state-1)]
+                                                                                      [state-2 (increment-click-amount 1000000 state-1)]
                                                                                       [state-3 (use-item "UPGRADE MODULE V4 " state-2)])
                                                                                  [show-dialogue "You insert the upgrade module into the coin generator"]
-                                                                                 [show-dialogue "\"COIN AMOUNT + 50,000\""]
+                                                                                 [show-dialogue "\"COIN AMOUNT + 1,000,000\""]
                                                                                  [show-dialogue "You finally have the means to escape!"]
                                                                                  [game-loop state-3])]
                                                                               )})]
@@ -229,7 +229,7 @@
                                                                                       [state-4 (remove-menu-item "upgrade-menu" "F" state-3)])
                                                                                  [show-dialogue "You insert the strange upgrade module into the coin generator"]
                                                                                  [show-dialogue "On the screen, you read: \"R MODE BOOSTED\""]
-                                                                                 [show-dialogue "You will now have a 40% chance of receiving 0.2x your total coins\nper press of the button; this bonus now caps at 100,000 coins"]
+                                                                                 [show-dialogue "You will now have a 40% chance of receiving 0.2x your total coins\nper press of the button; this bonus now caps at 30,000 coins"]
                                                                                  [game-loop state-4])]
                                                                               )})]
         ))
@@ -381,7 +381,7 @@
                                                                                                                                                               [(item-in-inventory? "LANTERN " game-state)
                                                                                                                                                                (let* ([state-1 (use-item "LANTERN " game-state)]
                                                                                                                                                                       [state-2 (remove-menu-item "treasure-room" "M" state-1)]
-                                                                                                                                                                      [state-3 (add-menu-item state-1 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering secret passage found by lantern"}))])
+                                                                                                                                                                      [state-3 (add-menu-item state-2 "south-path" "Enter secret passage" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering secret passage found by lantern"}))])
                                                                                                                                                                  [show-dialogue "With the help of the lantern, you find a secret passage!"]
                                                                                                                                                                  [show-dialogue "You leave the lantern at the entrance to mark its location"]
                                                                                                                                                                  [game-loop state-3])]
@@ -728,6 +728,7 @@
         ))
 
 ; --- EAST PATH --------------------------------------------------------------------------------
+
 (define east-path
   (list "east-path"
         [list "Check your surroundings" "S" (lambda (game-state) {begin
@@ -752,15 +753,53 @@
                                                                 #:current-location "EAST PATH"
                                                                 #:description "An enormous subterranean casino of mysterious origin"})]
         ))
-        
 
-; menu-list to provide for use in the starting game-state
+; --- VICTORY PATH ----------------------------------------------------------------------
+
+(define victory-path
+  (list "victory-path"
+        [list "Check your surroundings" "S" (lambda (game-state) {begin
+                                                                 (let* ([state-1 (add-menu-item game-state "victory-path" "Play high-stakes mimic game (1 mimic key)" "A" (lambda (game-state) {lambda-extractor game-state "logic for playing final mimic game"}))]
+                                                                        [state-2 (add-menu-item state-1 "victory-path" "Escape (1 exit key)" "B" (lambda (game-state) {lambda-extractor game-state "logic for good ending"}))]
+                                                                        [state-3 (add-menu-item state-2 "victory-path" "Drop item" "W" (lambda (game-state) {lambda-extractor game-state "logic for dropping items"}))]
+                                                                        [state-4 (remove-menu-item "victory-path" "S" state-3)])
+                                                                   [show-dialogue "You take a look around the alcove"]
+                                                                   [show-dialogue "You see a door with an exit sign. You ecstatically run over to it only to realize it won't budge. It must be locked"]
+                                                                   [show-dialogue "It is only after this that you realize there is yet another mimic game. Completing it must reward you the key you need to escape"]
+                                                                   [game-loop state-4])})]
+        [list "Go back" "R" (lambda (game-state) {lambda-extractor game-state "logic for returning to main-menu"})]
+        [list "Info" "Z" (lambda (game-state) {lambda-extractor game-state "logic for showing info"
+                                                                #:current-location "VICTORY PATH"
+                                                                #:description "A small alcove with only a single obstacle between you and your escape. Don't mess this up!"})]
+        ))
+
+; the starting game state and its constituent parts
 (define menu-list (list title main-menu upgrade-menu north-path south-path west-path east-path
                         labyrinth-1 labyrinth-2 labyrinth-3 labyrinth-4 labyrinth-5 treasure-room secret-passage
                         deep-labyrinth-1 deep-labyrinth-2 deep-labyrinth-3 deep-labyrinth-4 deep-labyrinth-5
                         deep-labyrinth-6 deep-labyrinth-7 deep-labyrinth-8 deep-labyrinth-9 deep-labyrinth-10
                         deep-labyrinth-11 deep-labyrinth-12 dead-end-1 dead-end-2 dead-end-3 deep-treasure-room
+                        victory-path
                         ))
+
+(define inventory-list (list
+                        [list "KEY "               #f #f #f]
+                        [list "UPGRADE MODULE V1 " #f #f #f]
+                        [list "UPGRADE MODULE V2 " #f #f #f]
+                        [list "UPGRADE MODULE V3 " #f #f #f]
+                        [list "UPGRADE MODULE V4 " #f #f #f]
+                        [list "UPGRADE MODULE R "  #f #f #f]
+                        [list "UPGRADE MODULE R2 " #f #f #f]
+                        [list "MIMIC KEY "         #f #f #f]
+                        [list "LANTERN "           #f #f #f]
+                        [list "SWORD "             #f #f #f]
+                        [list "EXIT KEY "          #f #f #f]
+                        ))
+
+(define starting-game-state (list "title"
+                                  menu-list
+                                  inventory-list
+                                  0 1))
 
 
 ; pre  -- takes a game-state object and a string key (and possibly some keyword arguments)
@@ -773,6 +812,77 @@
                           #:num-id [num-id 0])
   (cond
 
+; --- MAIN MENU ---
+
+    ; the lambda body for unlocking victory-path
+    [(equal? key "logic for unlocking victory-path")
+
+     (cond
+       [(< (get-coin-count game-state) 20000000)
+        [show-dialogue "You don't have quite enough coins to do this yet"]
+        [game-loop game-state]]
+
+       [else
+        (let* ([state-1 (deduct-coins 20000000 game-state)]
+               [state-2 (remove-menu-item "main-menu" "E" state-1)]
+               [state-3 (add-menu-item state-2 "main-menu" "Enter the alcove" "E" (lambda (game-state) {lambda-extractor game-state "logic for entering victory-path"}))])
+          [show-dialogue "Using your millions of coins, you build yourself a staircase of gold to the top of the chamber"]
+          [show-dialogue "At the top, there is an alcove. That must be the way out!"]
+          [game-loop state-3])]
+       )]
+
+    ; the lambda body for entering victory-path
+    [(equal? key "logic for entering victory-path")
+
+     (let* ([state-1 (set-current-menu "victory-path" game-state)])
+       [show-dialogue "You climb your staircase and enter the alcove"]
+       [game-loop state-1])]
+
+; --- VICTORY PATH ---
+
+    ; the lambda body for getting the good ending
+    [(equal? key "logic for good ending")
+
+     (cond
+       [(not (item-in-inventory? "EXIT KEY " game-state))
+        [show-dialogue "You try the door again, but it won't budge. Looks like the mimic game is the only way"]
+        [game-loop game-state]]
+
+       [else
+        [show-dialogue "You use the key to open the door and are immediately hit with sunlight. You did it!"]
+        [show-dialogue "You got the good ending"]
+        [game-loop starting-game-state]]
+       )]
+
+    ; the lambda body for playing the final mimic game
+    [(equal? key "logic for playing final mimic game")
+
+     (cond
+       [(not (item-in-inventory? "MIMIC KEY " game-state))
+        [show-dialogue "You need a mimic key to play"]
+        [game-loop game-state]]
+
+       [else
+        (let ([win? (mimic-game-4)]
+              [state-0 (use-item "MIMIC KEY " game-state)])
+          (cond
+            [win?
+             (let* ([state-1 (remove-menu-item "victory-path" "A" state-0)]
+                    [state-2 (add-coins 2147483647 state-1)])
+               [show-dialogue "Within the chests, you find 2,147,483,647 coins and the exit key"]
+               [game-loop (pick-up-item "EXIT KEY " state-2)]
+               )]
+
+            [else
+             [show-dialogue "The mimic and its two friends tackle you and start devouring you"]
+             [show-dialogue "As you lie on the ground dying, you can only think of how close you were to escaping"]
+             [show-dialogue "You got the bad ending"]
+             [game-loop starting-game-state]]
+            ))]
+       )]
+               
+     
+    
 ; --- UPGRADE MENU ---
 
     ; the lambda body of the add-menu-item call when using UPGRADE MODULE R from the upgrade-menu
@@ -800,7 +910,7 @@
        (cond
          [(>= rand-num 6)
           (let* ([bonus (floor (/ (get-coin-count game-state) 5))]
-                 [adjusted-bonus (min bonus 100000)]
+                 [adjusted-bonus (min bonus 30000)]
                  [state-2 (add-coins adjusted-bonus state-1)])
             [show-dialogue (format "You recieved ~a bonus coins; you now have ~a coins" adjusted-bonus (get-coin-count state-2))]
             [game-loop state-2])]
@@ -889,7 +999,6 @@
 
      (let* ([state-1 (pick-up-item "LANTERN " game-state)]
             [state-2 (remove-menu-item (get-current-menu-name state-1) "P" state-1)])
-       [show-dialogue "You pick up the lantern"]
        [show-dialogue "\"Why did I think that would work?\" you think out loud.\nThere must be some other dark area where you can use the lantern"]
        [game-loop state-2])]
      
@@ -1090,10 +1199,20 @@
     ; the lambda body for playing the slot machine
     [(equal? key "logic for playing slot machine")
 
-     "todo"]
+     [show-dialogue "You insert 50,000 coins into the machine"]
+     (let ([win? (slot-machine)]
+           [state-1 (deduct-coins 50000 game-state)])
+       (cond
+         [win?
+          [show-dialogue "An upgrade module is dispensed from the machine. You pick it up"]
+          [game-loop (pick-up-item "UPGRADE MODULE V4 " state-1)]]
+
+         [else
+          [game-loop state-1]]
+         ))]
 
     ; the lambda body that handles the logic of buying mimic keys
-    [(equal? "key logic for buying mimic key")
+    [(equal? key "logic for buying mimic key")
 
      (cond
        [(< (get-coin-count game-state) 150000)
@@ -1116,6 +1235,5 @@
     [else
      [show-dialogue (format "Error: not yet implemented; key: \"~a\"" key)]
      [game-loop game-state]]
-
 
   ))
