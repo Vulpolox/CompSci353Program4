@@ -67,7 +67,7 @@ Victory Path, obtaining the Exit Key, and leaving the cave
 ## Sources Used
 
 * Logic puzzles were based off of "Mimic Logic" by Nihohe Soft ([https://store.steampowered.com/app/2455920/Mimic_Logic/](https://store.steampowered.com/app/2455920/Mimic_Logic/))
-* I used generative AI to generate random intersting facts and funny dialogue that are displayed at differnt points in the game
+* I used generative AI to create random intersting facts and funny dialogue that are displayed at differnt points in the game
 
 ## Base Program Requirements
 
