@@ -63,7 +63,9 @@ Disclaimer: this game is designed to make you mad and trolls you on several inst
 ## Goal State
 
 The player can complete the game by collecting 20,000,000 coins, using those coins to unlock the\
-Victory Path, obtaining the Exit Key, and leaving the cave
+Victory Path, obtaining the Exit Key, and leaving the cave\
+\
+A cheat sheet for the puzzles in the game can be found here: [cheat sheet](https://github.com/Vulpolox/CompSci353Program4/blob/main/Cheat%20Sheet.pdf)
 
 ## Sources Used
 
