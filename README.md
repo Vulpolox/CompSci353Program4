@@ -83,7 +83,7 @@ is constrained to the cardinal directions
 ### Inventory
 
 The inventory system has all required features.  In the main six areas, the player has the option to view their\
-inventory by choosing "Show Info" from the menu.  The player also has the option to drop and pick up items by choosing\
+inventory by choosing "Show Info" from the menu.  The player also has the option to drop and pick up items by choosing
 the "Drop items" option from the menu.  Dropped items and items revealed using search persist\
 even when leaving and re-entering areas
 
