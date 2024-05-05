@@ -109,7 +109,7 @@ This command reveals items and activities for the player to do.
 
 ### Help
 
-The "Show info" option from the menus accomplishes 2/3 of the requirements for the help command\
+The "Info" option from the menus accomplishes 2/3 of the requirements for the help command\
 (gives player location and displays all items in inventory).  The third requirement is satisfied by\
 the structure of the game itself.  Everything in the game is handled by menus, so all possible commands\
 are visible to the player at all times.
