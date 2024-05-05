@@ -83,23 +83,23 @@ is constrained to the cardinal directions
 ### Inventory
 
 The inventory system has all required features.  In the main six areas, the player has the option to view their\
-inventory by choosing "Show Info" from the menu.  The player also has the option to drop and pick up items by choosing
+inventory by choosing "Info" from the menu.  The player also has the option to drop and pick up items by choosing
 the "Drop items" option from the menu.  Dropped items and items revealed using search persist\
 even when leaving and re-entering areas
 
 ### Reporting the Player's Location
 
-This can be accomplished by choosing "Show info" from the menus of the six main areas.
+This can be accomplished by choosing "Info" from the menus of the six main areas.
 
 ### List All Items in the Player's Inventory
 
-This can be accomplished by choosing "Show info" from the menus of the six main areas.
+This can be accomplished by choosing "Info" from the menus of the six main areas.
 
 ### Describe the Current Area
 
 A detailed description of the area is given when the player uses the search command for\
 each of the main areas.  A more brief description can be viewed at any time by\
-choosing the "Show info" option
+choosing the "Info" option
 
 ### Search the Current Area
 
