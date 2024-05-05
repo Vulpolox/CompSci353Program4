@@ -592,7 +592,7 @@
                                                    [define state-1 (set-current-menu "deep-labyrinth-7" game-state)]
                                                    [game-loop state-1]})]
         [list "Go east" "B" (lambda (game-state) {begin
-                                                   [define state-1 (set-current-menu "dead-end-2" game-state)]
+                                                   [define state-1 (set-current-menu "dead-end-3" game-state)]
                                                    [game-loop state-1]})]
         [list "Go south" "C" (lambda (game-state) {trap-game "You are sucked up by a giant vacuum cleaner.  The dustbag you fall into is full and stomach acid and partialy digested creatures" game-state "west-path"})]
         [list "Go west" "D" (lambda (game-state) {begin
